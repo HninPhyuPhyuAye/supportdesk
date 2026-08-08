@@ -8,6 +8,12 @@
 			"Resource": "*"
 		},
 		{
+			"Sid": "ListPrivateRepositoriesInSingapore",
+			"Effect": "Allow",
+			"Action": "ecr:DescribeRepositories",
+			"Resource": "arn:aws:ecr:ap-southeast-1:*:repository/*"
+		},
+		{
 			"Sid": "ManageSupportDeskRepository",
 			"Effect": "Allow",
 			"Action": [
@@ -20,7 +26,6 @@
 				"ecr:DeleteRepository",
 				"ecr:DescribeImageScanFindings",
 				"ecr:DescribeImages",
-				"ecr:DescribeRepositories",
 				"ecr:GetDownloadUrlForLayer",
 				"ecr:GetLifecyclePolicy",
 				"ecr:GetLifecyclePolicyPreview",
