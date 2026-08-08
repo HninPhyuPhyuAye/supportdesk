@@ -1,0 +1,43 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "AuthenticateToPrivateEcr",
+			"Effect": "Allow",
+			"Action": "ecr:GetAuthorizationToken",
+			"Resource": "*"
+		},
+		{
+			"Sid": "ManageSupportDeskRepository",
+			"Effect": "Allow",
+			"Action": [
+				"ecr:BatchCheckLayerAvailability",
+				"ecr:BatchDeleteImage",
+				"ecr:BatchGetImage",
+				"ecr:CompleteLayerUpload",
+				"ecr:CreateRepository",
+				"ecr:DeleteLifecyclePolicy",
+				"ecr:DeleteRepository",
+				"ecr:DescribeImageScanFindings",
+				"ecr:DescribeImages",
+				"ecr:DescribeRepositories",
+				"ecr:GetDownloadUrlForLayer",
+				"ecr:GetLifecyclePolicy",
+				"ecr:GetLifecyclePolicyPreview",
+				"ecr:InitiateLayerUpload",
+				"ecr:ListImages",
+				"ecr:ListTagsForResource",
+				"ecr:PutImage",
+				"ecr:PutImageScanningConfiguration",
+				"ecr:PutImageTagMutability",
+				"ecr:PutLifecyclePolicy",
+				"ecr:StartImageScan",
+				"ecr:StartLifecyclePolicyPreview",
+				"ecr:TagResource",
+				"ecr:UntagResource",
+				"ecr:UploadLayerPart"
+			],
+			"Resource": "arn:aws:ecr:ap-southeast-1:*:repository/supportdesk"
+		}
+	]
+}

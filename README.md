@@ -178,6 +178,29 @@ curl --fail http://localhost:3000/api/health
 
 The run script loads the ignored local `.env` without printing secrets and changes the database hostname from `localhost` to `host.docker.internal`. This lets the application container reach the PostgreSQL port published by the existing `supportdesk-postgres` container on macOS. Production will use a private Amazon RDS endpoint instead.
 
+## Infrastructure as code
+
+The first Terraform root module is in `infrastructure/terraform/ecr`. It manages
+the private SupportDesk container repository in the Singapore AWS region with
+immutable image tags, AES-256 encryption, scan-on-push, and lifecycle cleanup.
+Repository force deletion is disabled by default.
+
+The bootstrap IAM policy in `infrastructure/bootstrap` limits the deployment
+user to authenticating with ECR and managing only the `supportdesk` repository.
+Terraform state and saved plans are excluded from version control.
+
+Run the read-only validation workflow from the ECR module directory:
+
+```bash
+terraform init
+terraform fmt -check
+terraform validate
+terraform plan
+```
+
+`terraform apply` is intentionally a separate, explicit action because it
+creates AWS resources.
+
 ## Useful database commands
 
 ```bash
