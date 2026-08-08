@@ -6,6 +6,20 @@ import { api } from "@/trpc/react";
 
 type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 
+const SINGAPORE_UTC_OFFSET_MS = 8 * 60 * 60 * 1000;
+
+function formatSingaporeDate(date: Date) {
+	const singaporeDate = new Date(date.getTime() + SINGAPORE_UTC_OFFSET_MS);
+	const day = String(singaporeDate.getUTCDate()).padStart(2, "0");
+	const month = String(singaporeDate.getUTCMonth() + 1).padStart(2, "0");
+	const year = singaporeDate.getUTCFullYear();
+	const hours = String(singaporeDate.getUTCHours()).padStart(2, "0");
+	const minutes = String(singaporeDate.getUTCMinutes()).padStart(2, "0");
+	const seconds = String(singaporeDate.getUTCSeconds()).padStart(2, "0");
+
+	return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds} SGT`;
+}
+
 export function TicketList() {
 	const [tickets] = api.ticket.getAll.useSuspenseQuery();
 	const utils = api.useUtils();
@@ -135,7 +149,7 @@ export function TicketList() {
 									{ticket.description}
 								</p>
 								<p className="mt-3 text-slate-500 text-sm">
-									Created {ticket.createdAt.toLocaleString()}
+									Created {formatSingaporeDate(ticket.createdAt)}
 								</p>
 							</li>
 						))}
