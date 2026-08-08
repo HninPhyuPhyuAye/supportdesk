@@ -1,5 +1,7 @@
 # SupportDesk
 
+[![CI](https://github.com/HninPhyuPhyuAye/supportdesk/actions/workflows/ci.yml/badge.svg)](https://github.com/HninPhyuPhyuAye/supportdesk/actions/workflows/ci.yml)
+
 SupportDesk is a full-stack IT support ticket application for reporting, prioritizing, and tracking technical issues. It is a portfolio project focused on type-safe web development, authentication, access control, relational data, and a future AWS deployment.
 
 ## Current features
@@ -146,6 +148,10 @@ npm run build
 ```
 
 Stop the development server before running the production build because both commands use the `.next` directory.
+
+## Continuous integration
+
+The GitHub Actions CI workflow runs for pushes to `main` and for pull requests. It starts a temporary PostgreSQL service, applies the committed Prisma migrations, checks Biome rules, checks TypeScript, and creates a production build. CI uses non-production placeholder OAuth values and does not contain application secrets.
 
 ## Useful database commands
 
