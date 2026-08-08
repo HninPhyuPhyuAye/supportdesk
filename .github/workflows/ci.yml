@@ -62,3 +62,6 @@ jobs:
 
       - name: Build production application
         run: npm run build
+
+      - name: Build production container
+        run: docker build --tag supportdesk:ci .

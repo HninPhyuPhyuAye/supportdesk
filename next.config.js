@@ -7,6 +7,7 @@ import "./src/env.js";
 /** @type {import("next").NextConfig} */
 const config = {
 	agentRules: false,
+	output: "standalone",
 };
 
 export default config;

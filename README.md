@@ -152,7 +152,31 @@ Next.js 16 keeps development output in `.next/dev`, separate from production bui
 
 ## Continuous integration
 
-The GitHub Actions CI workflow runs for pushes to `main` and for pull requests. It starts a temporary PostgreSQL service, applies the committed Prisma migrations, checks Biome rules, checks TypeScript, runs the automated tests, and creates a production build. CI uses non-production placeholder OAuth values and does not contain application secrets.
+The GitHub Actions CI workflow runs for pushes to `main` and for pull requests. It starts a temporary PostgreSQL service, applies the committed Prisma migrations, checks Biome rules, checks TypeScript, runs the automated tests, creates a production build, and builds the production Docker image. CI uses non-production placeholder OAuth values and does not contain application secrets.
+
+## Production container
+
+SupportDesk uses a multi-stage Docker build and Next.js standalone output. Dependency installation and compilation happen in temporary build stages. The final image contains only the production server, static assets, and required runtime dependencies, and runs as a non-root user.
+
+Build the image:
+
+```bash
+docker build --pull --tag supportdesk:local .
+```
+
+Run it against the existing PostgreSQL container:
+
+```bash
+./run-container.sh
+```
+
+Check container health from another terminal:
+
+```bash
+curl --fail http://localhost:3000/api/health
+```
+
+The run script loads the ignored local `.env` without printing secrets and changes the database hostname from `localhost` to `host.docker.internal`. This lets the application container reach the PostgreSQL port published by the existing `supportdesk-postgres` container on macOS. Production will use a private Amazon RDS endpoint instead.
 
 ## Useful database commands
 
@@ -168,7 +192,6 @@ Prisma migrations are committed to version control so database changes are repea
 
 The AWS work below is a roadmap and has not yet been implemented:
 
-- Package the Next.js application as a Docker image
 - Store the image in Amazon ECR
 - Run the application on Amazon ECS with AWS Fargate
 - Use Amazon RDS for PostgreSQL with automated backups
@@ -184,5 +207,4 @@ This roadmap is intended to demonstrate cloud provisioning, infrastructure as co
 - Support-agent and administrator roles
 - Ticket assignment and comments
 - Search, pagination, and audit history
-- Automated tests and CI checks
 - Mobile-friendly progressive web app features
