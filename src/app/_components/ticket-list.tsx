@@ -6,6 +6,8 @@ import { api } from "@/trpc/react";
 
 type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
 type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
+type TicketPriorityFilter = "ALL" | TicketPriority;
+type TicketStatusFilter = "ALL" | TicketStatus;
 
 const SINGAPORE_UTC_OFFSET_MS = 8 * 60 * 60 * 1000;
 
@@ -28,6 +30,18 @@ export function TicketList() {
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
 	const [priority, setPriority] = useState<TicketPriority>("MEDIUM");
+	const [priorityFilter, setPriorityFilter] =
+		useState<TicketPriorityFilter>("ALL");
+	const [statusFilter, setStatusFilter] = useState<TicketStatusFilter>("ALL");
+
+	const filteredTickets = tickets.filter((ticket) => {
+		const matchesPriority =
+			priorityFilter === "ALL" || ticket.priority === priorityFilter;
+		const matchesStatus =
+			statusFilter === "ALL" || ticket.status === statusFilter;
+
+		return matchesPriority && matchesStatus;
+	});
 
 	const createTicket = api.ticket.create.useMutation({
 		onSuccess: async () => {
@@ -129,6 +143,44 @@ export function TicketList() {
 					{tickets.length === 1 ? "" : "s"}.
 				</p>
 
+				{tickets.length > 0 && (
+					<div className="mt-5 grid gap-3 sm:grid-cols-2">
+						<label className="flex flex-col gap-1 font-medium text-sm">
+							Filter by status
+							<select
+								className="rounded-lg border border-slate-300 px-3 py-2"
+								onChange={(event) =>
+									setStatusFilter(event.target.value as TicketStatusFilter)
+								}
+								value={statusFilter}
+							>
+								<option value="ALL">All statuses</option>
+								<option value="OPEN">Open</option>
+								<option value="IN_PROGRESS">In progress</option>
+								<option value="RESOLVED">Resolved</option>
+								<option value="CLOSED">Closed</option>
+							</select>
+						</label>
+
+						<label className="flex flex-col gap-1 font-medium text-sm">
+							Filter by priority
+							<select
+								className="rounded-lg border border-slate-300 px-3 py-2"
+								onChange={(event) =>
+									setPriorityFilter(event.target.value as TicketPriorityFilter)
+								}
+								value={priorityFilter}
+							>
+								<option value="ALL">All priorities</option>
+								<option value="LOW">Low</option>
+								<option value="MEDIUM">Medium</option>
+								<option value="HIGH">High</option>
+								<option value="URGENT">Urgent</option>
+							</select>
+						</label>
+					</div>
+				)}
+
 				{updateStatus.error && (
 					<p className="mt-4 rounded-lg bg-red-50 p-3 text-red-700">
 						{updateStatus.error.message}
@@ -139,9 +191,13 @@ export function TicketList() {
 					<p className="mt-6 rounded-lg bg-slate-100 p-6 text-center text-slate-600">
 						You have not created any tickets yet.
 					</p>
+				) : filteredTickets.length === 0 ? (
+					<p className="mt-6 rounded-lg bg-slate-100 p-6 text-center text-slate-600">
+						No tickets match the selected filters.
+					</p>
 				) : (
 					<ul className="mt-6 flex flex-col gap-4">
-						{tickets.map((ticket) => (
+						{filteredTickets.map((ticket) => (
 							<li
 								className="rounded-xl border border-slate-200 p-4"
 								key={ticket.id}
