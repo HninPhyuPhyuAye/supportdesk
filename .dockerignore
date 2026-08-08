@@ -10,3 +10,8 @@ generated
 *.log
 coverage
 README.md
+
+**/.terraform
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfplan
