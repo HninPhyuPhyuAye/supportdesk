@@ -148,7 +148,7 @@ npm test
 npm run build
 ```
 
-Stop the development server before running the production build because both commands use the `.next` directory.
+Next.js 16 keeps development output in `.next/dev`, separate from production build output, so development and build processes no longer overwrite each other's caches.
 
 ## Continuous integration
 
