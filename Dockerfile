@@ -2,12 +2,10 @@
 
 ARG NODE_VERSION=24.19.0
 
-FROM node:${NODE_VERSION}-slim AS base
+FROM node:${NODE_VERSION}-alpine AS base
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
-RUN apt-get update \
-	&& apt-get install --yes --no-install-recommends openssl \
-	&& rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache openssl
 
 FROM base AS dependencies
 COPY package.json package-lock.json ./
@@ -31,8 +29,8 @@ ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
-RUN groupadd --system --gid 1001 nodejs \
-	&& useradd --system --uid 1001 --gid nodejs nextjs
+RUN addgroup --system --gid 1001 nodejs \
+	&& adduser --system --uid 1001 --ingroup nodejs nextjs
 
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 RUN mkdir .next && chown nextjs:nodejs .next

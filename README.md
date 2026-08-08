@@ -164,6 +164,14 @@ Build the image:
 docker build --pull --tag supportdesk:local .
 ```
 
+When building an image for the immutable ECR repository, disable BuildKit
+provenance so the commit tag is attached directly to the runnable image
+manifest:
+
+```bash
+docker build --pull --provenance=false --tag "supportdesk:$(git rev-parse --short=7 HEAD)" .
+```
+
 Run it against the existing PostgreSQL container:
 
 ```bash
@@ -213,9 +221,9 @@ Prisma migrations are committed to version control so database changes are repea
 
 ## Planned AWS deployment
 
-The AWS work below is a roadmap and has not yet been implemented:
+The ECR repository is implemented with Terraform. The remaining AWS work is:
 
-- Store the image in Amazon ECR
+- Push commit-tagged application images to Amazon ECR
 - Run the application on Amazon ECS with AWS Fargate
 - Use Amazon RDS for PostgreSQL with automated backups
 - Store production secrets in AWS Secrets Manager
