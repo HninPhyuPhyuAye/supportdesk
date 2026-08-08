@@ -5,6 +5,7 @@ import { useState } from "react";
 import { api } from "@/trpc/react";
 
 type TicketPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
 
 const SINGAPORE_UTC_OFFSET_MS = 8 * 60 * 60 * 1000;
 
@@ -34,6 +35,12 @@ export function TicketList() {
 			setTitle("");
 			setDescription("");
 			setPriority("MEDIUM");
+		},
+	});
+
+	const updateStatus = api.ticket.updateStatus.useMutation({
+		onSuccess: async () => {
+			await utils.ticket.getAll.invalidate();
 		},
 	});
 
@@ -122,6 +129,12 @@ export function TicketList() {
 					{tickets.length === 1 ? "" : "s"}.
 				</p>
 
+				{updateStatus.error && (
+					<p className="mt-4 rounded-lg bg-red-50 p-3 text-red-700">
+						{updateStatus.error.message}
+					</p>
+				)}
+
 				{tickets.length === 0 ? (
 					<p className="mt-6 rounded-lg bg-slate-100 p-6 text-center text-slate-600">
 						You have not created any tickets yet.
@@ -136,9 +149,28 @@ export function TicketList() {
 								<div className="flex flex-wrap items-start justify-between gap-2">
 									<h3 className="font-semibold text-lg">{ticket.title}</h3>
 									<div className="flex gap-2 text-xs">
-										<span className="rounded-full bg-blue-100 px-2 py-1 font-semibold text-blue-800">
-											{ticket.status.replace("_", " ")}
-										</span>
+										<select
+											aria-label={`Status for ${ticket.title}`}
+											className="rounded-lg border border-blue-200 bg-blue-50 px-2 py-1 font-semibold text-blue-800"
+											disabled={updateStatus.isPending}
+											onChange={(event) => {
+												updateStatus.mutate({
+													id: ticket.id,
+													status: event.target.value as TicketStatus,
+												});
+											}}
+											value={
+												updateStatus.isPending &&
+												updateStatus.variables?.id === ticket.id
+													? updateStatus.variables.status
+													: ticket.status
+											}
+										>
+											<option value="OPEN">Open</option>
+											<option value="IN_PROGRESS">In progress</option>
+											<option value="RESOLVED">Resolved</option>
+											<option value="CLOSED">Closed</option>
+										</select>
 										<span className="rounded-full bg-amber-100 px-2 py-1 font-semibold text-amber-800">
 											{ticket.priority}
 										</span>

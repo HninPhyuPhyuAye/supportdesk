@@ -1,8 +1,15 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 
 const ticketPrioritySchema = z.enum(["LOW", "MEDIUM", "HIGH", "URGENT"]);
+const ticketStatusSchema = z.enum([
+	"OPEN",
+	"IN_PROGRESS",
+	"RESOLVED",
+	"CLOSED",
+]);
 
 export const ticketRouter = createTRPCRouter({
 	create: protectedProcedure
@@ -52,5 +59,36 @@ export const ticketRouter = createTRPCRouter({
 					createdById: ctx.session.user.id,
 				},
 			});
+		}),
+
+	updateStatus: protectedProcedure
+		.input(
+			z.object({
+				id: z.string().min(1),
+				status: ticketStatusSchema,
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const result = await ctx.db.ticket.updateMany({
+				where: {
+					id: input.id,
+					createdById: ctx.session.user.id,
+				},
+				data: {
+					status: input.status,
+				},
+			});
+
+			if (result.count === 0) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Ticket not found",
+				});
+			}
+
+			return {
+				id: input.id,
+				status: input.status,
+			};
 		}),
 });
