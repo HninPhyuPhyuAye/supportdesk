@@ -144,6 +144,7 @@ Open [http://localhost:3000](http://localhost:3000).
 ```bash
 npm run check
 npm run typecheck
+npm test
 npm run build
 ```
 
@@ -151,7 +152,7 @@ Stop the development server before running the production build because both com
 
 ## Continuous integration
 
-The GitHub Actions CI workflow runs for pushes to `main` and for pull requests. It starts a temporary PostgreSQL service, applies the committed Prisma migrations, checks Biome rules, checks TypeScript, and creates a production build. CI uses non-production placeholder OAuth values and does not contain application secrets.
+The GitHub Actions CI workflow runs for pushes to `main` and for pull requests. It starts a temporary PostgreSQL service, applies the committed Prisma migrations, checks Biome rules, checks TypeScript, runs the automated tests, and creates a production build. CI uses non-production placeholder OAuth values and does not contain application secrets.
 
 ## Useful database commands
 
