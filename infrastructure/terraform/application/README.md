@@ -27,6 +27,21 @@ terraform test
 The test uses Terraform's mocked AWS provider. Its mock apply exists only in
 memory, does not authenticate to AWS, and does not create cloud resources.
 
+## Read-only AWS plan
+
+Before producing a real AWS plan, an administrator must attach the read-only
+`infrastructure/bootstrap/supportdesk-network-plan-policy.json` policy to the
+deployment user. Then run:
+
+```bash
+terraform plan -out=supportdesk-network.tfplan
+terraform show supportdesk-network.tfplan
+```
+
+Planning reads existing network inventory but does not create resources. A
+saved plan is ignored by Git and must be reviewed before any apply command is
+considered.
+
 Do not run `terraform apply` until the plan, IAM permissions, expected resources,
 and cost controls have been reviewed. Initializing and validating this module
 locally does not create AWS resources.
