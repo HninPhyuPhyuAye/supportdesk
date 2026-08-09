@@ -197,6 +197,10 @@ The bootstrap IAM policy in `infrastructure/bootstrap` limits the deployment
 user to authenticating with ECR and managing only the `supportdesk` repository.
 Terraform state and saved plans are excluded from version control.
 
+The planned ECS Fargate and RDS deployment, including its cost controls,
+security boundaries, availability upgrade path, and teardown objective, is
+documented in [docs/aws-architecture.md](docs/aws-architecture.md).
+
 Run the read-only validation workflow from the ECR module directory:
 
 ```bash
