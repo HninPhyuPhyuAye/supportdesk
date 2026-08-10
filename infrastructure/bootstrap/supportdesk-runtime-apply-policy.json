@@ -1,0 +1,176 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "ManageNamedSupportDeskEcsCluster",
+			"Effect": "Allow",
+			"Action": [
+				"ecs:CreateCluster",
+				"ecs:DeleteCluster",
+				"ecs:TagResource",
+				"ecs:UntagResource",
+				"ecs:UpdateClusterSettings"
+			],
+			"Resource": "arn:aws:ecs:ap-southeast-1:*:cluster/supportdesk-demo",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "ManageNamedSupportDeskTaskDefinition",
+			"Effect": "Allow",
+			"Action": [
+				"ecs:RegisterTaskDefinition",
+				"ecs:TagResource",
+				"ecs:UntagResource"
+			],
+			"Resource": "arn:aws:ecs:ap-southeast-1:*:task-definition/supportdesk-demo:*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "DeregisterTaskDefinitionsDuringApprovedTeardown",
+			"Effect": "Allow",
+			"Action": "ecs:DeregisterTaskDefinition",
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "ManageNamedSupportDeskEcsService",
+			"Effect": "Allow",
+			"Action": [
+				"ecs:CreateService",
+				"ecs:DeleteService",
+				"ecs:TagResource",
+				"ecs:UntagResource",
+				"ecs:UpdateService"
+			],
+			"Resource": "arn:aws:ecs:ap-southeast-1:*:service/supportdesk-demo/supportdesk-demo",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				},
+				"ArnLike": {
+					"ecs:cluster": "arn:aws:ecs:ap-southeast-1:*:cluster/supportdesk-demo"
+				}
+			}
+		},
+		{
+			"Sid": "PassOnlySupportDeskTaskRolesToEcs",
+			"Effect": "Allow",
+			"Action": "iam:PassRole",
+			"Resource": [
+				"arn:aws:iam::*:role/supportdesk-ecs-execution",
+				"arn:aws:iam::*:role/supportdesk-ecs-task"
+			],
+			"Condition": {
+				"StringEquals": {
+					"iam:PassedToService": "ecs-tasks.amazonaws.com"
+				}
+			}
+		},
+		{
+			"Sid": "CreateNamedSupportDeskLoadBalancerResources",
+			"Effect": "Allow",
+			"Action": [
+				"elasticloadbalancing:AddTags",
+				"elasticloadbalancing:CreateListener",
+				"elasticloadbalancing:CreateLoadBalancer",
+				"elasticloadbalancing:CreateTargetGroup"
+			],
+			"Resource": [
+				"arn:aws:elasticloadbalancing:ap-southeast-1:*:listener/app/supportdesk-demo-alb/*/*",
+				"arn:aws:elasticloadbalancing:ap-southeast-1:*:loadbalancer/app/supportdesk-demo-alb/*",
+				"arn:aws:elasticloadbalancing:ap-southeast-1:*:targetgroup/supportdesk-demo-app/*"
+			],
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "ModifyOrDeleteOnlyNamedSupportDeskLoadBalancerResources",
+			"Effect": "Allow",
+			"Action": [
+				"elasticloadbalancing:DeleteListener",
+				"elasticloadbalancing:DeleteLoadBalancer",
+				"elasticloadbalancing:DeleteTargetGroup",
+				"elasticloadbalancing:ModifyListenerAttributes",
+				"elasticloadbalancing:ModifyLoadBalancerAttributes",
+				"elasticloadbalancing:ModifyTargetGroup",
+				"elasticloadbalancing:ModifyTargetGroupAttributes",
+				"elasticloadbalancing:RemoveTags"
+			],
+			"Resource": [
+				"arn:aws:elasticloadbalancing:ap-southeast-1:*:listener/app/supportdesk-demo-alb/*/*",
+				"arn:aws:elasticloadbalancing:ap-southeast-1:*:loadbalancer/app/supportdesk-demo-alb/*",
+				"arn:aws:elasticloadbalancing:ap-southeast-1:*:targetgroup/supportdesk-demo-app/*"
+			],
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "ManageOnlySupportDeskApplicationLogGroup",
+			"Effect": "Allow",
+			"Action": [
+				"logs:CreateLogGroup",
+				"logs:DeleteLogGroup",
+				"logs:PutRetentionPolicy",
+				"logs:TagResource",
+				"logs:UntagResource"
+			],
+			"Resource": "arn:aws:logs:ap-southeast-1:*:log-group:/ecs/supportdesk-demo:*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "ManageOnlySupportDeskApplicationSecretMetadata",
+			"Effect": "Allow",
+			"Action": [
+				"secretsmanager:CreateSecret",
+				"secretsmanager:DeleteSecret",
+				"secretsmanager:TagResource",
+				"secretsmanager:UntagResource",
+				"secretsmanager:UpdateSecret"
+			],
+			"Resource": "arn:aws:secretsmanager:ap-southeast-1:*:secret:supportdesk/demo/application-*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "UseExistingSupportDeskNetworkForLoadBalancer",
+			"Effect": "Allow",
+			"Action": [
+				"ec2:DescribeAccountAttributes",
+				"ec2:DescribeSecurityGroups",
+				"ec2:DescribeSubnets",
+				"ec2:DescribeVpcs"
+			],
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		}
+	]
+}

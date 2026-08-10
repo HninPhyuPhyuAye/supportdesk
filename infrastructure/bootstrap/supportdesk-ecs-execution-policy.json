@@ -1,0 +1,33 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "AuthenticateToPrivateEcr",
+			"Effect": "Allow",
+			"Action": "ecr:GetAuthorizationToken",
+			"Resource": "*"
+		},
+		{
+			"Sid": "PullOnlySupportDeskImage",
+			"Effect": "Allow",
+			"Action": [
+				"ecr:BatchCheckLayerAvailability",
+				"ecr:BatchGetImage",
+				"ecr:GetDownloadUrlForLayer"
+			],
+			"Resource": "arn:aws:ecr:ap-southeast-1:*:repository/supportdesk"
+		},
+		{
+			"Sid": "WriteOnlySupportDeskContainerLogs",
+			"Effect": "Allow",
+			"Action": ["logs:CreateLogStream", "logs:PutLogEvents"],
+			"Resource": "arn:aws:logs:ap-southeast-1:*:log-group:/ecs/supportdesk-demo:log-stream:*"
+		},
+		{
+			"Sid": "ReadOnlySupportDeskApplicationSecret",
+			"Effect": "Allow",
+			"Action": "secretsmanager:GetSecretValue",
+			"Resource": "arn:aws:secretsmanager:ap-southeast-1:*:secret:supportdesk/demo/application-*"
+		}
+	]
+}

@@ -1,0 +1,77 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "ReadSingaporeEcsInventoryForTerraformPlan",
+			"Effect": "Allow",
+			"Action": [
+				"ecs:DescribeClusters",
+				"ecs:DescribeServices",
+				"ecs:ListTagsForResource"
+			],
+			"Resource": [
+				"arn:aws:ecs:ap-southeast-1:*:cluster/supportdesk-demo",
+				"arn:aws:ecs:ap-southeast-1:*:service/supportdesk-demo/supportdesk-demo",
+				"arn:aws:ecs:ap-southeast-1:*:task-definition/supportdesk-demo:*"
+			],
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "DescribeTaskDefinitionsForTerraformPlan",
+			"Effect": "Allow",
+			"Action": "ecs:DescribeTaskDefinition",
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "ReadSingaporeLoadBalancerInventoryForTerraformPlan",
+			"Effect": "Allow",
+			"Action": [
+				"elasticloadbalancing:DescribeListenerAttributes",
+				"elasticloadbalancing:DescribeListeners",
+				"elasticloadbalancing:DescribeLoadBalancerAttributes",
+				"elasticloadbalancing:DescribeLoadBalancers",
+				"elasticloadbalancing:DescribeTags",
+				"elasticloadbalancing:DescribeTargetGroupAttributes",
+				"elasticloadbalancing:DescribeTargetGroups",
+				"elasticloadbalancing:DescribeTargetHealth"
+			],
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "ReadSupportDeskLogMetadataForTerraformPlan",
+			"Effect": "Allow",
+			"Action": ["logs:DescribeLogGroups", "logs:ListTagsForResource"],
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "ReadSupportDeskApplicationSecretMetadataOnly",
+			"Effect": "Allow",
+			"Action": "secretsmanager:DescribeSecret",
+			"Resource": "arn:aws:secretsmanager:ap-southeast-1:*:secret:supportdesk/demo/application-*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		}
+	]
+}

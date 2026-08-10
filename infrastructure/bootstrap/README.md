@@ -11,6 +11,10 @@ administrator session and then attached to the deployment user.
 | `supportdesk-network-apply-policy.json` | Temporarily create or remove only the tagged network resource types in the reviewed plan. |
 | `supportdesk-database-plan-policy.json` | Read Singapore RDS inventory and RDS-managed secret metadata without reading secret values. |
 | `supportdesk-database-apply-policy.json` | Temporarily create or remove only the cost-controlled SupportDesk PostgreSQL resources. |
+| `supportdesk-ecs-tasks-trust-policy.json` | Let only the ECS tasks service in Singapore assume the execution and application task roles. |
+| `supportdesk-ecs-execution-policy.json` | Let the ECS agent pull only the SupportDesk image, write its log streams, and read its application secret. |
+| `supportdesk-runtime-plan-policy.json` | Read ECS, load-balancer, log-group, and application-secret metadata without reading secret values. |
+| `supportdesk-runtime-apply-policy.json` | Temporarily manage only the named SupportDesk ECS, ALB, log-group, and application-secret metadata resources. |
 
 The network plan policy contains only `Describe` actions. It cannot create,
 modify, tag, or delete AWS resources. The actions use `Resource: "*"` because
@@ -41,3 +45,26 @@ detection after deployment.
 RDS also requires the account-level `AWSServiceRoleForRDS` service-linked role.
 An administrator must create that role if it does not already exist. Do not
 grant `iam:CreateServiceLinkedRole` to `supportdesk-deployer`.
+
+The ECS runtime uses two administrator-created roles with the same trust policy:
+
+- `supportdesk-ecs-execution` receives the execution policy because the ECS
+  agent pulls the private image, writes container logs, and injects secrets.
+- `supportdesk-ecs-task` intentionally receives no permissions yet because the
+  SupportDesk application does not call AWS APIs directly.
+
+The runtime apply policy can pass only those two roles and only to
+`ecs-tasks.amazonaws.com`. It deliberately excludes `secretsmanager:PutSecretValue`;
+an administrator populates the application secret outside Terraform so the
+plaintext value never enters Terraform state. The apply policy must be detached
+immediately after an approved runtime apply or teardown.
+
+AWS does not support resource-level authorization for
+`ecs:DescribeTaskDefinition` or `ecs:DeregisterTaskDefinition`. Those two
+statements therefore use `Resource: "*"` with a Singapore-region condition.
+All task-definition creation and tagging remains limited to the
+`supportdesk-demo` family, and the apply policy is temporary.
+
+Amazon ECS and Elastic Load Balancing also use account-level service-linked
+roles. An administrator must create them if they do not already exist. Do not
+grant `iam:CreateServiceLinkedRole` to the deployment user.
