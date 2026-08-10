@@ -269,3 +269,21 @@ variable "enable_ecs_service" {
   type        = bool
   default     = false
 }
+
+variable "enable_migration_task_definition" {
+  description = "Registers the one-off database bootstrap task only after its immutable image has been pushed."
+  type        = bool
+  default     = false
+}
+
+variable "migration_image_tag" {
+  description = "Immutable migration image tag in the form migration-<Git commit SHA>."
+  type        = string
+  default     = null
+  nullable    = true
+
+  validation {
+    condition     = var.migration_image_tag == null || can(regex("^migration-[0-9a-f]{7,40}$", var.migration_image_tag))
+    error_message = "The migration image tag must be null or migration- followed by a 7-to-40-character lowercase Git commit SHA."
+  }
+}

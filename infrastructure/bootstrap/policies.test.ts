@@ -100,4 +100,22 @@ describe("ECS IAM policy guardrails", () => {
 			},
 		});
 	});
+
+	it("limits temporary migration access to one task family and read-only secrets", () => {
+		const secretPolicy = loadPolicy("supportdesk-migration-secret-policy.json");
+		const runPolicy = loadPolicy("supportdesk-migration-run-policy.json");
+		const secretActions = actionsFor(secretPolicy);
+		const runActions = actionsFor(runPolicy);
+		const runTask = runPolicy.Statement.find(
+			(statement) => statement.Action === "ecs:RunTask",
+		);
+
+		expect(secretActions).toEqual(["secretsmanager:GetSecretValue"]);
+		expect(secretActions).not.toContain("secretsmanager:PutSecretValue");
+		expect(runActions).toContain("ecs:RunTask");
+		expect(runActions).not.toContain("ecs:CreateService");
+		expect(runTask?.Resource).toBe(
+			"arn:aws:ecs:ap-southeast-1:*:task-definition/supportdesk-demo-migration:*",
+		);
+	});
 });

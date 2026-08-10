@@ -232,16 +232,16 @@ Completed:
 - Pushed a commit-tagged, scanned application image
 - Provisioned the VPC, subnets, routes, and security groups with Terraform
 - Provisioned a private, encrypted RDS PostgreSQL database with an RDS-managed secret
-- Implemented and locally tested the disabled-by-default ECS, ALB, CloudWatch Logs, and application-secret configuration
+- Provisioned the ECS cluster, ARM64 application task definition, ALB, CloudWatch Logs, and empty application-secret container
+- Kept the billable Fargate service disabled until secrets and migrations are ready
+- Implemented and locally tested a non-root one-off database bootstrap and Prisma migration image
 
-The deployed RDS instance and its managed secret currently incur charges. The
-ECS runtime has not been applied, so no ECS, ALB, Fargate, runtime-log, or second
-secret resources were added by this checkpoint. Remaining AWS work:
+The deployed RDS instance, ALB, and two Secrets Manager secrets currently incur
+charges. No Fargate task is running yet. Remaining AWS work:
 
-- Create least-privilege ECS execution and task roles
-- Review the runtime IAM permissions, Terraform plan, and expected costs
+- Push and register the immutable migration image
 - Populate the application runtime secret outside Terraform
-- Create a least-privilege PostgreSQL application user during migration
+- Run the one-off task to create the least-privilege PostgreSQL login and apply migrations
 - Run the application on Amazon ECS with AWS Fargate
 - Add alarms, deployment documentation, and a recovery runbook
 

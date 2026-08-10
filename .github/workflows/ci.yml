@@ -65,3 +65,6 @@ jobs:
 
       - name: Build production container
         run: docker build --tag supportdesk:ci .
+
+      - name: Build one-off migration container
+        run: docker build --target migrator --tag supportdesk-migrator:ci .

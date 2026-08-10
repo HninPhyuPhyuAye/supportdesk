@@ -12,7 +12,8 @@
 			"Resource": [
 				"arn:aws:ecs:ap-southeast-1:*:cluster/supportdesk-demo",
 				"arn:aws:ecs:ap-southeast-1:*:service/supportdesk-demo/supportdesk-demo",
-				"arn:aws:ecs:ap-southeast-1:*:task-definition/supportdesk-demo:*"
+				"arn:aws:ecs:ap-southeast-1:*:task-definition/supportdesk-demo:*",
+				"arn:aws:ecs:ap-southeast-1:*:task-definition/supportdesk-demo-migration:*"
 			],
 			"Condition": {
 				"StringEquals": {

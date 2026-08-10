@@ -1,0 +1,66 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "RunOnlySupportDeskMigrationTask",
+			"Effect": "Allow",
+			"Action": "ecs:RunTask",
+			"Resource": "arn:aws:ecs:ap-southeast-1:*:task-definition/supportdesk-demo-migration:*",
+			"Condition": {
+				"ArnLike": {
+					"ecs:cluster": "arn:aws:ecs:ap-southeast-1:*:cluster/supportdesk-demo"
+				},
+				"Bool": {
+					"ecs:enable-execute-command": "false"
+				},
+				"NumericEquals": {
+					"ecs:task-cpu": "256",
+					"ecs:task-memory": "512"
+				},
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "ObserveOrStopOnlySupportDeskClusterTasks",
+			"Effect": "Allow",
+			"Action": ["ecs:DescribeTasks", "ecs:StopTask"],
+			"Resource": "arn:aws:ecs:ap-southeast-1:*:task/supportdesk-demo/*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "PassOnlySupportDeskRolesToMigrationTask",
+			"Effect": "Allow",
+			"Action": "iam:PassRole",
+			"Resource": [
+				"arn:aws:iam::*:role/supportdesk-ecs-execution",
+				"arn:aws:iam::*:role/supportdesk-ecs-task"
+			],
+			"Condition": {
+				"StringEquals": {
+					"iam:PassedToService": "ecs-tasks.amazonaws.com"
+				}
+			}
+		},
+		{
+			"Sid": "ReadOnlySupportDeskMigrationLogs",
+			"Effect": "Allow",
+			"Action": [
+				"logs:DescribeLogStreams",
+				"logs:FilterLogEvents",
+				"logs:GetLogEvents"
+			],
+			"Resource": "arn:aws:logs:ap-southeast-1:*:log-group:/ecs/supportdesk-demo:*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		}
+	]
+}

@@ -65,3 +65,8 @@ output "ecs_service_enabled" {
   description = "Whether Terraform is configured to run the billable SupportDesk Fargate service."
   value       = var.enable_ecs_service
 }
+
+output "migration_task_definition_arn" {
+  description = "ARN of the one-off database bootstrap task definition when enabled."
+  value       = try(aws_ecs_task_definition.migration[0].arn, null)
+}

@@ -15,6 +15,8 @@ administrator session and then attached to the deployment user.
 | `supportdesk-ecs-execution-policy.json` | Let the ECS agent pull only the SupportDesk image, write its log streams, and read its application secret. |
 | `supportdesk-runtime-plan-policy.json` | Read ECS, load-balancer, log-group, and application-secret metadata without reading secret values. |
 | `supportdesk-runtime-apply-policy.json` | Temporarily manage only the named SupportDesk ECS, ALB, log-group, and application-secret metadata resources. |
+| `supportdesk-migration-secret-policy.json` | Temporarily let the ECS execution role inject the RDS-managed master credential into the migration task. |
+| `supportdesk-migration-run-policy.json` | Temporarily run, observe, or stop only the small SupportDesk migration task. |
 
 The network plan policy contains only `Describe` actions. It cannot create,
 modify, tag, or delete AWS resources. The actions use `Resource: "*"` because
@@ -68,3 +70,11 @@ All task-definition creation and tagging remains limited to the
 Amazon ECS and Elastic Load Balancing also use account-level service-linked
 roles. An administrator must create them if they do not already exist. Do not
 grant `iam:CreateServiceLinkedRole` to the deployment user.
+
+The one-off migration task creates or rotates the restricted
+`supportdesk_app` PostgreSQL login and runs committed Prisma migrations as that
+login. Before the task runs, temporarily attach
+`supportdesk-migration-secret-policy.json` to the ECS execution role and
+`supportdesk-migration-run-policy.json` to the deployment user. Detach both as
+soon as the migration exits successfully. The migration policy cannot update
+secrets, and the run policy cannot create a service or run another task family.

@@ -38,6 +38,20 @@ mock_provider "aws" {
       arn = "arn:aws:ecs:ap-southeast-1:123456789012:task-definition/supportdesk-demo:1"
     }
   }
+
+  override_resource {
+    target = aws_db_instance.supportdesk
+    values = {
+      address = "supportdesk-demo-postgres.example.internal"
+      master_user_secret = [
+        {
+          kms_key_id    = "arn:aws:kms:ap-southeast-1:123456789012:key/12345678-1234-1234-1234-123456789012"
+          secret_arn    = "arn:aws:secretsmanager:ap-southeast-1:123456789012:secret:rds!db-test"
+          secret_status = "active"
+        }
+      ]
+    }
+  }
 }
 
 run "disabled_cost_controlled_runtime" {
@@ -129,5 +143,51 @@ run "explicitly_enabled_service_networking" {
   assert {
     condition     = length(aws_ecs_service.supportdesk[0].network_configuration[0].subnets) == 2
     error_message = "The service must be able to place its single task in either public subnet."
+  }
+}
+
+run "one_off_migration_task" {
+  command = apply
+
+  variables {
+    enable_migration_task_definition = true
+    migration_image_tag              = "migration-deadbee"
+  }
+
+  assert {
+    condition     = length(aws_ecs_task_definition.migration) == 1
+    error_message = "Explicit migration enablement must register exactly one task definition."
+  }
+
+  assert {
+    condition     = aws_ecs_task_definition.migration[0].cpu == "256" && aws_ecs_task_definition.migration[0].memory == "512"
+    error_message = "The migration task must use the smallest approved Fargate size."
+  }
+
+  assert {
+    condition     = aws_ecs_task_definition.migration[0].runtime_platform[0].cpu_architecture == "ARM64"
+    error_message = "The migration task must use the ARM64 runtime platform."
+  }
+
+  assert {
+    condition     = jsondecode(aws_ecs_task_definition.migration[0].container_definitions)[0].readonlyRootFilesystem
+    error_message = "The migration container root filesystem must be read-only."
+  }
+
+  assert {
+    condition     = jsondecode(aws_ecs_task_definition.migration[0].container_definitions)[0].user == "1001:1001"
+    error_message = "The migration container must run as a non-root user."
+  }
+
+  assert {
+    condition = sort([
+      for secret in jsondecode(aws_ecs_task_definition.migration[0].container_definitions)[0].secrets : secret.name
+      ]) == sort([
+      "DATABASE_APP_PASSWORD",
+      "DATABASE_URL",
+      "PGPASSWORD",
+      "PGUSER",
+    ])
+    error_message = "Migration credentials must be injected from the two approved Secrets Manager secrets."
   }
 }

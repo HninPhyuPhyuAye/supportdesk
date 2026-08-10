@@ -3,10 +3,11 @@
 ## Status
 
 This document describes the AWS runtime architecture. The ECR repository,
-application network, private RDS instance, and RDS-managed master secret are
-deployed. The ECS cluster, task definition, load balancer, seven-day log group,
-and application-secret metadata are implemented and tested locally but have not
-been applied. The Fargate service is disabled by default.
+application network, private RDS instance, RDS-managed master secret, ECS
+cluster, application task definition, load balancer, seven-day log group, and
+empty application-secret container are deployed. The Fargate service remains
+disabled, so no application task is running. The separate one-off migration
+task is implemented and tested locally but has not been registered or run.
 
 The first deployment will be short-lived and cost-controlled. Terraform will
 also expose the settings needed to demonstrate how the design scales to a
@@ -102,14 +103,16 @@ application rollback to an earlier immutable ECR tag.
 1. Validate and review the Terraform plan without creating resources.
 2. Provision networking and security groups.
 3. Provision RDS and its managed Secrets Manager credential. **Completed.**
-4. Create the ECS execution and task roles and review the runtime plan and cost.
-5. Populate the application secret outside Terraform.
-6. Apply Prisma migrations through a controlled one-off ECS task.
-7. Provision the ECS task definition, service, load balancer, and logging.
-8. Update the GitHub OAuth callback and production application URL.
-9. Test authentication, ticket operations, health checks, logs, and alarms.
-10. Capture architecture and operational evidence for the portfolio.
-11. Create a final database snapshot and destroy billable demo resources.
+4. Create the ECS execution and task roles and review the runtime plan and cost. **Completed.**
+5. Provision the disabled runtime foundation and task definition. **Completed.**
+6. Push and register the one-off migration image.
+7. Populate the application secret outside Terraform.
+8. Create the restricted database login and apply Prisma migrations through the one-off task.
+9. Enable the ECS service.
+10. Update the GitHub OAuth callback and production application URL.
+11. Test authentication, ticket operations, health checks, logs, and alarms.
+12. Capture architecture and operational evidence for the portfolio.
+13. Create a final database snapshot and destroy billable demo resources.
 
 ## Teardown objective
 

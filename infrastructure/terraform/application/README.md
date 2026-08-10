@@ -10,26 +10,30 @@ environment in `ap-southeast-1`. The deployed checkpoint currently includes:
 - no NAT Gateway; and
 - separate load balancer, application, and database security groups; and
 - a private, encrypted, Single-AZ RDS for PostgreSQL instance with an
-  RDS-managed master credential.
+  RDS-managed master credential;
+- one ECS cluster and a non-running ARM64 application task definition;
+- an internet-facing Application Load Balancer and `/api/health` target group;
+- a seven-day CloudWatch Logs group; and
+- an empty application-secret container in Secrets Manager.
 
 The database subnets have no internet route. The application security group
 accepts traffic only from the load balancer and can connect to PostgreSQL only
 through the database security group.
 
-The ECS runtime checkpoint is implemented and tested locally but has **not**
-been applied. It defines:
+The ECS service remains deliberately disabled with
+`enable_ecs_service = false`, so no Fargate application task is running. The
+deployed ALB, application secret, RDS instance, and RDS-managed secret incur
+charges even while the service is off.
 
-- one ECS cluster with paid Container Insights disabled;
-- an ARM64 Fargate task fixed at 0.25 vCPU and 0.5 GB memory;
-- an internet-facing Application Load Balancer and `/api/health` checks;
-- a seven-day CloudWatch Logs group;
-- application-secret metadata in Secrets Manager; and
-- an ECS service that is disabled by default with `enable_ecs_service = false`.
+The next checkpoint is implemented and tested locally but has **not** been
+applied. It adds a separate one-off ARM64 migration task definition that:
 
-The deployed RDS instance and its managed secret continue to incur charges.
-Local validation and mocked tests create no AWS resources. No ECS cluster,
-load balancer, CloudWatch log group, application secret, task definition, or
-Fargate service is created until a later explicitly approved apply.
+- runs as a non-root user with a read-only root filesystem;
+- receives both credentials from Secrets Manager at runtime;
+- creates or rotates the restricted `supportdesk_app` database login;
+- transfers ownership only for objects in the application schema;
+- applies committed Prisma migrations as `supportdesk_app`; and
+- exits instead of creating a continuously running service.
 
 ## Local validation
 
@@ -53,21 +57,40 @@ The `DATABASE_URL`, Better Auth secret, and GitHub OAuth values must be populate
 outside Terraform so their plaintext values do not enter Terraform state. The
 task definition injects those values by JSON key at runtime.
 
-The task definition references administrator-created
+The task definitions reference administrator-created
 `supportdesk-ecs-execution` and `supportdesk-ecs-task` IAM roles. Terraform does
-not create those roles. They and a tightly scoped runtime deployment policy must
-be reviewed before producing a real runtime plan.
+not create those roles. The roles now exist, and the runtime read-only policy is
+attached to the deployment user. All write and migration policies remain
+temporary.
+
+## Migration image
+
+Build the migration target using the same pinned Node base image:
+
+```bash
+docker build --target migrator --tag supportdesk-migrator:local .
+```
+
+The migration task definition is disabled by default. Enable it only with an
+immutable image tag after that image has been pushed to ECR:
+
+```bash
+terraform plan \
+  -var='enable_migration_task_definition=true' \
+  -var='migration_image_tag=migration-<git-sha>'
+```
+
+The temporary RDS-master-secret permission belongs on the execution role only
+while the one-off migration task runs. Detach it immediately afterward.
 
 ## Read-only AWS plan
 
-The currently attached read-only network and database plan policies support
-drift checks for the deployed checkpoint. A separate least-privilege runtime
-plan policy is still required before planning the ECS checkpoint. After that
-policy is reviewed and attached, run:
+The attached read-only network, database, and runtime plan policies support
+drift checks for the deployed checkpoint without reading secret values. Run:
 
 ```bash
-terraform plan -out=supportdesk-runtime.tfplan
-terraform show supportdesk-runtime.tfplan
+terraform plan -out=supportdesk-application.tfplan
+terraform show supportdesk-application.tfplan
 ```
 
 Planning reads existing network inventory but does not create resources. A
@@ -81,10 +104,9 @@ for an explicitly approved apply or teardown, and detach it immediately
 afterward. Keep only read-only policies attached for drift detection.
 
 Do not run `terraform apply` until the plan, IAM permissions, expected resources,
-and cost controls have been reviewed. Applying the current runtime configuration
-would create a billable load balancer and application secret even while the
-Fargate service remains disabled. Initializing, validating, and testing this
-module locally does not create AWS resources.
+and cost controls have been reviewed. Initializing, validating, and testing this
+module locally does not create AWS resources. The deployed ALB and secrets must
+be removed promptly after the portfolio demonstration.
 
 The complete design and teardown objective are documented in
 [`docs/aws-architecture.md`](../../../docs/aws-architecture.md).

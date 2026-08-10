@@ -24,6 +24,14 @@ RUN --mount=type=cache,target=/app/.next/cache \
 	SKIP_ENV_VALIDATION=1 \
 	npm run build
 
+FROM dependencies AS migrator
+RUN apk add --no-cache postgresql-client \
+	&& addgroup --system --gid 1001 nodejs \
+	&& adduser --system --uid 1001 --ingroup nodejs migrator
+COPY --chmod=0555 scripts/bootstrap-rds.sh ./scripts/bootstrap-rds.sh
+USER migrator
+ENTRYPOINT ["./scripts/bootstrap-rds.sh"]
+
 FROM base AS runner
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
