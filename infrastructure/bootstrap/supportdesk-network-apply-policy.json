@@ -31,6 +31,24 @@
 			}
 		},
 		{
+			"Sid": "UseTaggedSupportDeskVpcForChildResourceCreation",
+			"Effect": "Allow",
+			"Action": [
+				"ec2:CreateRouteTable",
+				"ec2:CreateSecurityGroup",
+				"ec2:CreateSubnet"
+			],
+			"Resource": "arn:aws:ec2:ap-southeast-1:*:vpc/*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1",
+					"ec2:ResourceTag/Application": "supportdesk",
+					"ec2:ResourceTag/Environment": "demo",
+					"ec2:ResourceTag/ManagedBy": "terraform"
+				}
+			}
+		},
+		{
 			"Sid": "TagResourcesDuringApprovedCreation",
 			"Effect": "Allow",
 			"Action": "ec2:CreateTags",
@@ -47,7 +65,7 @@
 						"CreateSubnet",
 						"CreateVpc"
 					]
-			},
+				},
 				"ForAllValues:StringEquals": {
 					"aws:TagKeys": [
 						"Application",
