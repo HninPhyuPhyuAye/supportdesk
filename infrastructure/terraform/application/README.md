@@ -42,6 +42,13 @@ Planning reads existing network inventory but does not create resources. A
 saved plan is ignored by Git and must be reviewed before any apply command is
 considered.
 
+## Controlled apply access
+
+The separate `infrastructure/bootstrap/supportdesk-network-apply-policy.json`
+policy contains the write actions needed by this network configuration. Attach
+it only for an explicitly approved apply or teardown, and detach it immediately
+afterward. Keep the read-only plan policy attached for drift detection.
+
 Do not run `terraform apply` until the plan, IAM permissions, expected resources,
 and cost controls have been reviewed. Initializing and validating this module
 locally does not create AWS resources.

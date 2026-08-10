@@ -8,6 +8,7 @@ administrator session and then attached to the deployment user.
 | --- | --- |
 | `supportdesk-ecr-policy.json` | Manage only the SupportDesk ECR repository and list private repositories in Singapore. |
 | `supportdesk-network-plan-policy.json` | Read Singapore VPC inventory so Terraform can produce a real network plan. |
+| `supportdesk-network-apply-policy.json` | Temporarily create or remove only the tagged network resource types in the reviewed plan. |
 
 The network plan policy contains only `Describe` actions. It cannot create,
 modify, tag, or delete AWS resources. The actions use `Resource: "*"` because
@@ -20,3 +21,9 @@ separation between infrastructure deployment and permission administration.
 
 Write access for the application network will be defined in a separate policy
 and reviewed only after the read-only Terraform plan is available.
+
+The network apply policy should be attached only immediately before an approved
+apply or teardown and detached again afterward. It cannot create compute,
+database, load-balancer, Elastic IP, or NAT Gateway resources. New taggable
+network resources must include the SupportDesk demo tags, and destructive
+resource actions require those tags to already be present.

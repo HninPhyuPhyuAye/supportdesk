@@ -1,0 +1,138 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "CreateTaggedSupportDeskNetworkResources",
+			"Effect": "Allow",
+			"Action": [
+				"ec2:CreateInternetGateway",
+				"ec2:CreateRouteTable",
+				"ec2:CreateSecurityGroup",
+				"ec2:CreateSubnet",
+				"ec2:CreateVpc"
+			],
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1",
+					"aws:RequestTag/Application": "supportdesk",
+					"aws:RequestTag/Environment": "demo",
+					"aws:RequestTag/ManagedBy": "terraform"
+				},
+				"ForAllValues:StringEquals": {
+					"aws:TagKeys": [
+						"Application",
+						"Environment",
+						"ManagedBy",
+						"Name",
+						"Tier"
+					]
+				}
+			}
+		},
+		{
+			"Sid": "TagResourcesDuringApprovedCreation",
+			"Effect": "Allow",
+			"Action": "ec2:CreateTags",
+			"Resource": "arn:aws:ec2:ap-southeast-1:*:*/*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1",
+					"ec2:CreateAction": [
+						"AuthorizeSecurityGroupEgress",
+						"AuthorizeSecurityGroupIngress",
+						"CreateInternetGateway",
+						"CreateRouteTable",
+						"CreateSecurityGroup",
+						"CreateSubnet",
+						"CreateVpc"
+					]
+			},
+				"ForAllValues:StringEquals": {
+					"aws:TagKeys": [
+						"Application",
+						"Environment",
+						"ManagedBy",
+						"Name",
+						"Tier"
+					]
+				}
+			}
+		},
+		{
+			"Sid": "ConnectAndConfigurePlannedNetworkResources",
+			"Effect": "Allow",
+			"Action": [
+				"ec2:AssociateRouteTable",
+				"ec2:AttachInternetGateway",
+				"ec2:AuthorizeSecurityGroupEgress",
+				"ec2:AuthorizeSecurityGroupIngress",
+				"ec2:CreateRoute",
+				"ec2:DeleteRoute",
+				"ec2:DetachInternetGateway",
+				"ec2:DisassociateRouteTable",
+				"ec2:ModifySecurityGroupRules",
+				"ec2:ModifySubnetAttribute",
+				"ec2:ModifyVpcAttribute",
+				"ec2:ReplaceRoute",
+				"ec2:ReplaceRouteTableAssociation",
+				"ec2:RevokeSecurityGroupEgress",
+				"ec2:RevokeSecurityGroupIngress",
+				"ec2:UpdateSecurityGroupRuleDescriptionsEgress",
+				"ec2:UpdateSecurityGroupRuleDescriptionsIngress"
+			],
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "ManageTagsOnSupportDeskTerraformResources",
+			"Effect": "Allow",
+			"Action": [
+				"ec2:CreateTags",
+				"ec2:DeleteTags"
+			],
+			"Resource": "arn:aws:ec2:ap-southeast-1:*:*/*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1",
+					"ec2:ResourceTag/Application": "supportdesk",
+					"ec2:ResourceTag/Environment": "demo",
+					"ec2:ResourceTag/ManagedBy": "terraform"
+				},
+				"ForAllValues:StringEquals": {
+					"aws:TagKeys": [
+						"Application",
+						"Environment",
+						"ManagedBy",
+						"Name",
+						"Tier"
+					]
+				}
+			}
+		},
+		{
+			"Sid": "DeleteOnlySupportDeskTerraformNetworkResources",
+			"Effect": "Allow",
+			"Action": [
+				"ec2:DeleteInternetGateway",
+				"ec2:DeleteRouteTable",
+				"ec2:DeleteSecurityGroup",
+				"ec2:DeleteSubnet",
+				"ec2:DeleteVpc"
+			],
+			"Resource": "arn:aws:ec2:ap-southeast-1:*:*/*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1",
+					"ec2:ResourceTag/Application": "supportdesk",
+					"ec2:ResourceTag/Environment": "demo",
+					"ec2:ResourceTag/ManagedBy": "terraform"
+				}
+			}
+		}
+	]
+}
