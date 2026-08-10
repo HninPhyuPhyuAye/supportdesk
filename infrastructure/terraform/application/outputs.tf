@@ -32,3 +32,15 @@ output "database_security_group_id" {
   description = "Security group attached to the PostgreSQL database."
   value       = aws_security_group.database.id
 }
+
+output "database_address" {
+  description = "Private DNS address of the SupportDesk PostgreSQL instance."
+  value       = aws_db_instance.supportdesk.address
+  sensitive   = true
+}
+
+output "database_master_secret_arn" {
+  description = "ARN of the RDS-managed Secrets Manager master credential."
+  value       = try(aws_db_instance.supportdesk.master_user_secret[0].secret_arn, null)
+  sensitive   = true
+}

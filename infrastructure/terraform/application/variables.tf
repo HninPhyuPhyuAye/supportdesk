@@ -96,6 +96,84 @@ variable "database_port" {
   }
 }
 
+variable "database_name" {
+  description = "Initial PostgreSQL database created for SupportDesk."
+  type        = string
+  default     = "supportdesk"
+
+  validation {
+    condition     = can(regex("^[a-z][a-z0-9_]{0,62}$", var.database_name))
+    error_message = "The database name must start with a lowercase letter and contain only lowercase letters, numbers, and underscores."
+  }
+}
+
+variable "database_master_username" {
+  description = "PostgreSQL administrator used only for controlled database bootstrap and migrations."
+  type        = string
+  default     = "supportdesk_admin"
+
+  validation {
+    condition     = can(regex("^[a-z][a-z0-9_]{0,62}$", var.database_master_username)) && var.database_master_username != "postgres"
+    error_message = "The master username must be a valid lowercase PostgreSQL identifier and cannot be postgres."
+  }
+}
+
+variable "database_engine_version" {
+  description = "PostgreSQL major version; RDS selects and maintains a compatible minor release."
+  type        = string
+  default     = "17"
+
+  validation {
+    condition     = contains(["16", "17"], var.database_engine_version)
+    error_message = "The supported PostgreSQL major versions are 16 and 17."
+  }
+}
+
+variable "database_instance_class" {
+  description = "Cost-controlled Graviton RDS instance class used by the demo."
+  type        = string
+  default     = "db.t4g.micro"
+
+  validation {
+    condition     = contains(["db.t4g.micro", "db.t4g.small"], var.database_instance_class)
+    error_message = "The demo database must use db.t4g.micro or db.t4g.small."
+  }
+}
+
+variable "database_allocated_storage" {
+  description = "Fixed gp3 storage allocation in GiB; automatic storage growth is disabled."
+  type        = number
+  default     = 20
+
+  validation {
+    condition     = var.database_allocated_storage >= 20 && var.database_allocated_storage <= 100
+    error_message = "Database storage must be between 20 and 100 GiB."
+  }
+}
+
+variable "database_backup_retention_days" {
+  description = "Number of days RDS retains automated backups for point-in-time recovery."
+  type        = number
+  default     = 1
+
+  validation {
+    condition     = var.database_backup_retention_days >= 1 && var.database_backup_retention_days <= 7
+    error_message = "The demo backup retention period must be between 1 and 7 days."
+  }
+}
+
+variable "database_deletion_protection" {
+  description = "Prevents accidental database deletion; disable explicitly before an approved teardown."
+  type        = bool
+  default     = true
+}
+
+variable "database_skip_final_snapshot" {
+  description = "Whether an approved teardown may omit the final database snapshot."
+  type        = bool
+  default     = false
+}
+
 variable "allowed_http_cidrs" {
   description = "CIDRs allowed to reach the public HTTP listener during the demo."
   type        = list(string)

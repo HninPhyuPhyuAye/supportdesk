@@ -2,9 +2,10 @@
 
 ## Status
 
-This document describes the planned AWS runtime architecture. The ECR
-repository is deployed, but the networking, application, and database resources
-described below have not been created yet.
+This document describes the AWS runtime architecture. The ECR repository and
+the application network are deployed. The RDS and Secrets Manager configuration
+is implemented and locally tested but has not been applied. ECS, the load
+balancer, and application monitoring remain planned.
 
 The first deployment will be short-lived and cost-controlled. Terraform will
 also expose the settings needed to demonstrate how the design scales to a
@@ -70,6 +71,10 @@ while deployed.
 - Generate the database password instead of committing it to Git.
 - Store application secrets in Secrets Manager and inject them into the ECS
   task at runtime.
+- Let RDS generate and rotate its master credential in Secrets Manager so the
+  plaintext password never enters Git or Terraform state.
+- Reserve the database master account for controlled bootstrap and migrations;
+  run the application with a separate least-privilege database user.
 - Give the ECS task, ECS execution role, and GitHub deployment role separate
   least-privilege IAM policies.
 - Use GitHub Actions OIDC federation instead of long-lived AWS access keys.

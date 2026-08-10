@@ -197,9 +197,10 @@ The bootstrap IAM policy in `infrastructure/bootstrap` limits the deployment
 user to authenticating with ECR and managing only the `supportdesk` repository.
 Terraform state and saved plans are excluded from version control.
 
-The planned ECS Fargate and RDS deployment, including its cost controls,
-security boundaries, availability upgrade path, and teardown objective, is
-documented in [docs/aws-architecture.md](docs/aws-architecture.md).
+The deployed network and the locally tested RDS configuration, including cost
+controls, security boundaries, availability upgrade path, and teardown
+objective, are documented in
+[docs/aws-architecture.md](docs/aws-architecture.md).
 
 Run the read-only validation workflow from the ECR module directory:
 
@@ -223,16 +224,22 @@ npm run db:studio
 
 Prisma migrations are committed to version control so database changes are repeatable and reviewable.
 
-## Planned AWS deployment
+## AWS deployment progress
 
-The ECR repository is implemented with Terraform. The remaining AWS work is:
+Completed:
 
-- Push commit-tagged application images to Amazon ECR
+- Provisioned the ECR repository with Terraform
+- Pushed a commit-tagged, scanned application image
+- Provisioned the VPC, subnets, routes, and security groups with Terraform
+- Implemented and locally tested the private RDS and Secrets Manager design
+
+The RDS code has not been applied and currently incurs no database or secret
+charges. Remaining AWS work:
+
 - Run the application on Amazon ECS with AWS Fargate
-- Use Amazon RDS for PostgreSQL with automated backups
-- Store production secrets in AWS Secrets Manager
+- Review and explicitly approve the RDS and Secrets Manager plan
+- Create a least-privilege PostgreSQL application user during migration
 - Send application and container logs to Amazon CloudWatch
-- Define networking and application infrastructure with Terraform
 - Add health checks, alarms, deployment documentation, and a recovery runbook
 
 This roadmap is intended to demonstrate cloud provisioning, infrastructure as code, security controls, monitoring, data protection, and operational documentation.

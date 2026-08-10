@@ -1,8 +1,8 @@
 # SupportDesk application infrastructure
 
-This Terraform root module will manage the short-lived SupportDesk AWS demo
-environment in `ap-southeast-1`. The first checkpoint defines only networking
-and security boundaries:
+This Terraform root module manages the short-lived SupportDesk AWS demo
+environment in `ap-southeast-1`. The deployed checkpoint currently includes
+the networking and security boundaries:
 
 - one VPC;
 - two public subnets across two Availability Zones;
@@ -15,6 +15,18 @@ The database subnets have no internet route. The application security group
 accepts traffic only from the load balancer and can connect to PostgreSQL only
 through the database security group.
 
+The next checkpoint is implemented in Terraform but has **not** been applied:
+
+- a private, encrypted, Single-AZ RDS for PostgreSQL instance;
+- a two-AZ RDS DB subnet group;
+- an RDS-managed master credential in Secrets Manager;
+- one day of automated backup retention;
+- deletion protection and a final snapshot by default; and
+- no storage autoscaling, Enhanced Monitoring, or Performance Insights.
+
+RDS and its managed Secrets Manager secret incur charges only after an approved
+apply. Local validation and mocked tests create no AWS resources.
+
 ## Local validation
 
 ```bash
@@ -26,6 +38,11 @@ terraform test
 
 The test uses Terraform's mocked AWS provider. Its mock apply exists only in
 memory, does not authenticate to AWS, and does not create cloud resources.
+
+RDS generates and rotates the master password in Secrets Manager. Terraform
+stores the resulting secret ARN, not the plaintext password. The master account
+is reserved for controlled bootstrap and migrations; the application will use
+a separate least-privilege database user created during the migration stage.
 
 ## Read-only AWS plan
 
