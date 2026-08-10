@@ -109,10 +109,7 @@
 		{
 			"Sid": "ManageTagsOnSupportDeskTerraformResources",
 			"Effect": "Allow",
-			"Action": [
-				"ec2:CreateTags",
-				"ec2:DeleteTags"
-			],
+			"Action": ["ec2:CreateTags", "ec2:DeleteTags"],
 			"Resource": "arn:aws:ec2:ap-southeast-1:*:*/*",
 			"Condition": {
 				"StringEquals": {

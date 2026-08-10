@@ -2,10 +2,11 @@
 
 ## Status
 
-This document describes the AWS runtime architecture. The ECR repository and
-the application network are deployed. The RDS and Secrets Manager configuration
-is implemented and locally tested but has not been applied. ECS, the load
-balancer, and application monitoring remain planned.
+This document describes the AWS runtime architecture. The ECR repository,
+application network, private RDS instance, and RDS-managed master secret are
+deployed. The ECS cluster, task definition, load balancer, seven-day log group,
+and application-secret metadata are implemented and tested locally but have not
+been applied. The Fargate service is disabled by default.
 
 The first deployment will be short-lived and cost-controlled. Terraform will
 also expose the settings needed to demonstrate how the design scales to a
@@ -71,6 +72,8 @@ while deployed.
 - Generate the database password instead of committing it to Git.
 - Store application secrets in Secrets Manager and inject them into the ECS
   task at runtime.
+- Create only the application secret container with Terraform and populate its
+  value outside Terraform so plaintext credentials do not enter state.
 - Let RDS generate and rotate its master credential in Secrets Manager so the
   plaintext password never enters Git or Terraform state.
 - Reserve the database master account for controlled bootstrap and migrations;
@@ -88,22 +91,25 @@ The demo runs one application task and a Single-AZ database to control costs.
 The production profile increases the application desired count to at least two
 and enables RDS Multi-AZ without redesigning the network.
 
-RDS automated backups, a final snapshot before destructive teardown, health
-checks, and CloudWatch alarms will be configured before the live demonstration.
-A recovery runbook will document database restoration and application rollback
-to an earlier immutable ECR tag.
+RDS automated backups, deletion protection, and a final snapshot are configured.
+Application and load-balancer health checks are included in the local runtime
+configuration. CloudWatch alarms remain to be added before the live
+demonstration. A recovery runbook will document database restoration and
+application rollback to an earlier immutable ECR tag.
 
 ## Deployment sequence
 
 1. Validate and review the Terraform plan without creating resources.
 2. Provision networking and security groups.
-3. Provision RDS and Secrets Manager resources.
-4. Apply Prisma migrations through a controlled one-off ECS task.
-5. Provision the ECS task definition, service, load balancer, and logging.
-6. Update the GitHub OAuth callback and production application URL.
-7. Test authentication, ticket operations, health checks, logs, and alarms.
-8. Capture architecture and operational evidence for the portfolio.
-9. Create a final database snapshot and destroy billable demo resources.
+3. Provision RDS and its managed Secrets Manager credential. **Completed.**
+4. Create the ECS execution and task roles and review the runtime plan and cost.
+5. Populate the application secret outside Terraform.
+6. Apply Prisma migrations through a controlled one-off ECS task.
+7. Provision the ECS task definition, service, load balancer, and logging.
+8. Update the GitHub OAuth callback and production application URL.
+9. Test authentication, ticket operations, health checks, logs, and alarms.
+10. Capture architecture and operational evidence for the portfolio.
+11. Create a final database snapshot and destroy billable demo resources.
 
 ## Teardown objective
 

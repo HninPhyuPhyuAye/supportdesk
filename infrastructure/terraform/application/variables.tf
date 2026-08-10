@@ -186,3 +186,86 @@ variable "allowed_http_cidrs" {
     error_message = "At least one valid IPv4 CIDR is required."
   }
 }
+
+variable "ecr_repository_name" {
+  description = "Private ECR repository containing the SupportDesk image."
+  type        = string
+  default     = "supportdesk"
+
+  validation {
+    condition     = can(regex("^[a-z0-9]+(?:[._/-][a-z0-9]+)*$", var.ecr_repository_name))
+    error_message = "The ECR repository name must be a valid private repository path."
+  }
+}
+
+variable "container_image_tag" {
+  description = "Immutable Git commit tag of the scanned SupportDesk image."
+  type        = string
+  default     = "984e1bc"
+
+  validation {
+    condition     = can(regex("^[0-9a-f]{7,40}$", var.container_image_tag))
+    error_message = "The container image tag must be a 7-to-40-character lowercase Git commit SHA."
+  }
+}
+
+variable "ecs_execution_role_name" {
+  description = "Administrator-created role used by ECS to pull the image, inject secrets, and write logs."
+  type        = string
+  default     = "supportdesk-ecs-execution"
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9+=,.@_-]{1,64}$", var.ecs_execution_role_name))
+    error_message = "The ECS execution role name must be a valid IAM role name."
+  }
+}
+
+variable "ecs_task_role_name" {
+  description = "Administrator-created least-privilege role assumed by the SupportDesk application task."
+  type        = string
+  default     = "supportdesk-ecs-task"
+
+  validation {
+    condition     = can(regex("^[A-Za-z0-9+=,.@_-]{1,64}$", var.ecs_task_role_name))
+    error_message = "The ECS task role name must be a valid IAM role name."
+  }
+}
+
+variable "fargate_cpu" {
+  description = "Fargate task CPU units. The demo is intentionally fixed at 0.25 vCPU."
+  type        = number
+  default     = 256
+
+  validation {
+    condition     = var.fargate_cpu == 256
+    error_message = "The cost-controlled demo task must use exactly 256 CPU units."
+  }
+}
+
+variable "fargate_memory" {
+  description = "Fargate task memory in MiB. The demo is intentionally fixed at 0.5 GB."
+  type        = number
+  default     = 512
+
+  validation {
+    condition     = var.fargate_memory == 512
+    error_message = "The cost-controlled demo task must use exactly 512 MiB of memory."
+  }
+}
+
+variable "application_log_retention_days" {
+  description = "CloudWatch retention period for SupportDesk container logs."
+  type        = number
+  default     = 7
+
+  validation {
+    condition     = contains([1, 3, 5, 7, 14], var.application_log_retention_days)
+    error_message = "The demo log retention period must be one of 1, 3, 5, 7, or 14 days."
+  }
+}
+
+variable "enable_ecs_service" {
+  description = "Starts the billable Fargate service only after runtime secrets and database migrations are ready."
+  type        = bool
+  default     = false
+}

@@ -1,10 +1,41 @@
 mock_provider "aws" {
-  override_during = plan
-
   override_data {
-    target = data.aws_availability_zones.available
+    override_during = plan
+    target          = data.aws_availability_zones.available
     values = {
       names = ["ap-southeast-1a", "ap-southeast-1b", "ap-southeast-1c"]
+    }
+  }
+
+  override_data {
+    override_during = plan
+    target          = data.aws_caller_identity.current
+    values = {
+      account_id = "123456789012"
+      arn        = "arn:aws:iam::123456789012:user/terraform-test"
+      user_id    = "AIDATESTONLY000000000"
+    }
+  }
+
+  override_resource {
+    target = aws_lb.supportdesk
+    values = {
+      arn      = "arn:aws:elasticloadbalancing:ap-southeast-1:123456789012:loadbalancer/app/supportdesk-demo-alb/1234567890abcdef"
+      dns_name = "supportdesk-demo-alb-123.ap-southeast-1.elb.amazonaws.com"
+    }
+  }
+
+  override_resource {
+    target = aws_lb_target_group.application
+    values = {
+      arn = "arn:aws:elasticloadbalancing:ap-southeast-1:123456789012:targetgroup/supportdesk-demo-app/1234567890abcdef"
+    }
+  }
+
+  override_resource {
+    target = aws_ecs_task_definition.supportdesk
+    values = {
+      arn = "arn:aws:ecs:ap-southeast-1:123456789012:task-definition/supportdesk-demo:1"
     }
   }
 }

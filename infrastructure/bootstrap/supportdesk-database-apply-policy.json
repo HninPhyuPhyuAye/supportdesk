@@ -14,12 +14,7 @@
 					"aws:RequestTag/ManagedBy": "terraform"
 				},
 				"ForAllValues:StringEquals": {
-					"aws:TagKeys": [
-						"Application",
-						"Environment",
-						"ManagedBy",
-						"Name"
-					]
+					"aws:TagKeys": ["Application", "Environment", "ManagedBy", "Name"]
 				}
 			}
 		},
@@ -49,12 +44,7 @@
 					"rds:StorageSize": "20"
 				},
 				"ForAllValues:StringEquals": {
-					"aws:TagKeys": [
-						"Application",
-						"Environment",
-						"ManagedBy",
-						"Name"
-					]
+					"aws:TagKeys": ["Application", "Environment", "ManagedBy", "Name"]
 				}
 			}
 		},
@@ -116,10 +106,7 @@
 		{
 			"Sid": "DeleteOnlyTaggedSupportDeskDatabaseResources",
 			"Effect": "Allow",
-			"Action": [
-				"rds:DeleteDBInstance",
-				"rds:DeleteDBSubnetGroup"
-			],
+			"Action": ["rds:DeleteDBInstance", "rds:DeleteDBSubnetGroup"],
 			"Resource": [
 				"arn:aws:rds:ap-southeast-1:*:db:supportdesk-demo-postgres",
 				"arn:aws:rds:ap-southeast-1:*:subgrp:supportdesk-demo-database"
@@ -136,10 +123,7 @@
 		{
 			"Sid": "ManageTagsOnlyOnSupportDeskDatabaseResources",
 			"Effect": "Allow",
-			"Action": [
-				"rds:AddTagsToResource",
-				"rds:RemoveTagsFromResource"
-			],
+			"Action": ["rds:AddTagsToResource", "rds:RemoveTagsFromResource"],
 			"Resource": [
 				"arn:aws:rds:ap-southeast-1:*:db:supportdesk-demo-postgres",
 				"arn:aws:rds:ap-southeast-1:*:snapshot:supportdesk-demo-final",
@@ -150,22 +134,14 @@
 					"aws:RequestedRegion": "ap-southeast-1"
 				},
 				"ForAllValues:StringEquals": {
-					"aws:TagKeys": [
-						"Application",
-						"Environment",
-						"ManagedBy",
-						"Name"
-					]
+					"aws:TagKeys": ["Application", "Environment", "ManagedBy", "Name"]
 				}
 			}
 		},
 		{
 			"Sid": "AllowRdsToCreateItsManagedSecret",
 			"Effect": "Allow",
-			"Action": [
-				"secretsmanager:CreateSecret",
-				"secretsmanager:TagResource"
-			],
+			"Action": ["secretsmanager:CreateSecret", "secretsmanager:TagResource"],
 			"Resource": "arn:aws:secretsmanager:ap-southeast-1:*:secret:rds!db-*",
 			"Condition": {
 				"StringEquals": {

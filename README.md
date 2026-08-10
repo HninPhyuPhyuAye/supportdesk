@@ -197,9 +197,9 @@ The bootstrap IAM policy in `infrastructure/bootstrap` limits the deployment
 user to authenticating with ECR and managing only the `supportdesk` repository.
 Terraform state and saved plans are excluded from version control.
 
-The deployed network and the locally tested RDS configuration, including cost
-controls, security boundaries, availability upgrade path, and teardown
-objective, are documented in
+The deployed network and RDS configuration, plus the locally tested ECS runtime
+configuration, cost controls, security boundaries, availability upgrade path,
+and teardown objective, are documented in
 [docs/aws-architecture.md](docs/aws-architecture.md).
 
 Run the read-only validation workflow from the ECR module directory:
@@ -231,16 +231,19 @@ Completed:
 - Provisioned the ECR repository with Terraform
 - Pushed a commit-tagged, scanned application image
 - Provisioned the VPC, subnets, routes, and security groups with Terraform
-- Implemented and locally tested the private RDS and Secrets Manager design
+- Provisioned a private, encrypted RDS PostgreSQL database with an RDS-managed secret
+- Implemented and locally tested the disabled-by-default ECS, ALB, CloudWatch Logs, and application-secret configuration
 
-The RDS code has not been applied and currently incurs no database or secret
-charges. Remaining AWS work:
+The deployed RDS instance and its managed secret currently incur charges. The
+ECS runtime has not been applied, so no ECS, ALB, Fargate, runtime-log, or second
+secret resources were added by this checkpoint. Remaining AWS work:
 
-- Run the application on Amazon ECS with AWS Fargate
-- Review and explicitly approve the RDS and Secrets Manager plan
+- Create least-privilege ECS execution and task roles
+- Review the runtime IAM permissions, Terraform plan, and expected costs
+- Populate the application runtime secret outside Terraform
 - Create a least-privilege PostgreSQL application user during migration
-- Send application and container logs to Amazon CloudWatch
-- Add health checks, alarms, deployment documentation, and a recovery runbook
+- Run the application on Amazon ECS with AWS Fargate
+- Add alarms, deployment documentation, and a recovery runbook
 
 This roadmap is intended to demonstrate cloud provisioning, infrastructure as code, security controls, monitoring, data protection, and operational documentation.
 
