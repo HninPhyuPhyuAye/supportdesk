@@ -59,6 +59,20 @@
 			}
 		},
 		{
+			"Sid": "UseTaggedSupportDeskSubnetGroupForDatabaseCreation",
+			"Effect": "Allow",
+			"Action": "rds:CreateDBInstance",
+			"Resource": "arn:aws:rds:ap-southeast-1:*:subgrp:supportdesk-demo-database",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1",
+					"aws:ResourceTag/Application": "supportdesk",
+					"aws:ResourceTag/Environment": "demo",
+					"aws:ResourceTag/ManagedBy": "terraform"
+				}
+			}
+		},
+		{
 			"Sid": "ModifyOnlyCostControlledSupportDeskPostgres",
 			"Effect": "Allow",
 			"Action": "rds:ModifyDBInstance",
