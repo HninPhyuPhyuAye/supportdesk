@@ -65,7 +65,10 @@
 		{
 			"Sid": "ReadSupportDeskApplicationSecretMetadataOnly",
 			"Effect": "Allow",
-			"Action": "secretsmanager:DescribeSecret",
+			"Action": [
+				"secretsmanager:DescribeSecret",
+				"secretsmanager:GetResourcePolicy"
+			],
 			"Resource": "arn:aws:secretsmanager:ap-southeast-1:*:secret:supportdesk/demo/application-*",
 			"Condition": {
 				"StringEquals": {

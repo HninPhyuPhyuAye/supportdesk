@@ -61,6 +61,7 @@ describe("ECS IAM policy guardrails", () => {
 		);
 
 		expect(actions).not.toContain("secretsmanager:GetSecretValue");
+		expect(actions).toContain("secretsmanager:GetResourcePolicy");
 		expect(
 			actions.every((action) =>
 				/:(Describe|List|Get)(?!SecretValue)/.test(action),
