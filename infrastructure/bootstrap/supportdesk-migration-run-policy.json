@@ -10,10 +10,10 @@
 				"ArnLike": {
 					"ecs:cluster": "arn:aws:ecs:ap-southeast-1:*:cluster/supportdesk-demo"
 				},
-				"Bool": {
+				"BoolIfExists": {
 					"ecs:enable-execute-command": "false"
 				},
-				"NumericEquals": {
+				"NumericEqualsIfExists": {
 					"ecs:task-cpu": "256",
 					"ecs:task-memory": "512"
 				},

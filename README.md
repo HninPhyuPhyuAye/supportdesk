@@ -232,16 +232,17 @@ Completed:
 - Pushed a commit-tagged, scanned application image
 - Provisioned the VPC, subnets, routes, and security groups with Terraform
 - Provisioned a private, encrypted RDS PostgreSQL database with an RDS-managed secret
-- Provisioned the ECS cluster, ARM64 application task definition, ALB, CloudWatch Logs, and empty application-secret container
-- Kept the billable Fargate service disabled until secrets and migrations are ready
-- Implemented and locally tested a non-root one-off database bootstrap and Prisma migration image
+- Provisioned the ECS cluster, ARM64 application task definition, ALB, CloudWatch Logs, and application secret
+- Kept the billable Fargate service disabled until production authentication is configured
+- Built, scanned, and registered an immutable non-root ARM64 migration image and one-off task definition
+- Populated the database-only application secret outside Terraform
+- Ran the one-off task successfully to create the least-privilege PostgreSQL login and apply both committed migrations
+- Removed the temporary migration runner and RDS master-secret permissions after the task stopped
 
 The deployed RDS instance, ALB, and two Secrets Manager secrets currently incur
 charges. No Fargate task is running yet. Remaining AWS work:
 
-- Push and register the immutable migration image
-- Populate the application runtime secret outside Terraform
-- Run the one-off task to create the least-privilege PostgreSQL login and apply migrations
+- Configure the production GitHub OAuth callback and add the authentication values to the application secret
 - Run the application on Amazon ECS with AWS Fargate
 - Add alarms, deployment documentation, and a recovery runbook
 

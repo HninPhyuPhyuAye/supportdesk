@@ -117,5 +117,14 @@ describe("ECS IAM policy guardrails", () => {
 		expect(runTask?.Resource).toBe(
 			"arn:aws:ecs:ap-southeast-1:*:task-definition/supportdesk-demo-migration:*",
 		);
+		expect(runTask?.Condition).toMatchObject({
+			BoolIfExists: {
+				"ecs:enable-execute-command": "false",
+			},
+			NumericEqualsIfExists: {
+				"ecs:task-cpu": "256",
+				"ecs:task-memory": "512",
+			},
+		});
 	});
 });
