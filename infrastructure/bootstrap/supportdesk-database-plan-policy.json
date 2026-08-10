@@ -1,0 +1,48 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "ReadSingaporeRdsInventoryForTerraformPlan",
+			"Effect": "Allow",
+			"Action": [
+				"rds:DescribeDBEngineVersions",
+				"rds:DescribeDBInstances",
+				"rds:DescribeDBSnapshots",
+				"rds:DescribeDBSubnetGroups",
+				"rds:DescribeOrderableDBInstanceOptions"
+			],
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "ReadOnlySupportDeskDatabaseTags",
+			"Effect": "Allow",
+			"Action": "rds:ListTagsForResource",
+			"Resource": [
+				"arn:aws:rds:ap-southeast-1:*:db:supportdesk-demo-postgres",
+				"arn:aws:rds:ap-southeast-1:*:snapshot:supportdesk-demo-final",
+				"arn:aws:rds:ap-southeast-1:*:subgrp:supportdesk-demo-database"
+			],
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "ReadRdsManagedSecretMetadataOnly",
+			"Effect": "Allow",
+			"Action": "secretsmanager:DescribeSecret",
+			"Resource": "arn:aws:secretsmanager:ap-southeast-1:*:secret:rds!db-*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		}
+	]
+}

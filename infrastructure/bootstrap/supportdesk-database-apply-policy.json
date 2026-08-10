@@ -1,0 +1,174 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "CreateTaggedSupportDeskDatabaseSubnetGroup",
+			"Effect": "Allow",
+			"Action": "rds:CreateDBSubnetGroup",
+			"Resource": "arn:aws:rds:ap-southeast-1:*:subgrp:supportdesk-demo-database",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1",
+					"aws:RequestTag/Application": "supportdesk",
+					"aws:RequestTag/Environment": "demo",
+					"aws:RequestTag/ManagedBy": "terraform"
+				},
+				"ForAllValues:StringEquals": {
+					"aws:TagKeys": [
+						"Application",
+						"Environment",
+						"ManagedBy",
+						"Name"
+					]
+				}
+			}
+		},
+		{
+			"Sid": "CreateCostControlledSupportDeskPostgres",
+			"Effect": "Allow",
+			"Action": "rds:CreateDBInstance",
+			"Resource": "arn:aws:rds:ap-southeast-1:*:db:supportdesk-demo-postgres",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1",
+					"aws:RequestTag/Application": "supportdesk",
+					"aws:RequestTag/Environment": "demo",
+					"aws:RequestTag/ManagedBy": "terraform",
+					"rds:DatabaseClass": "db.t4g.micro",
+					"rds:DatabaseEngine": "postgres",
+					"rds:DatabaseName": "supportdesk"
+				},
+				"Bool": {
+					"rds:ManageMasterUserPassword": "true",
+					"rds:MultiAz": "false",
+					"rds:PubliclyAccessible": "false",
+					"rds:StorageEncrypted": "true",
+					"rds:Vpc": "true"
+				},
+				"NumericEquals": {
+					"rds:StorageSize": "20"
+				},
+				"ForAllValues:StringEquals": {
+					"aws:TagKeys": [
+						"Application",
+						"Environment",
+						"ManagedBy",
+						"Name"
+					]
+				}
+			}
+		},
+		{
+			"Sid": "ModifyOnlyCostControlledSupportDeskPostgres",
+			"Effect": "Allow",
+			"Action": "rds:ModifyDBInstance",
+			"Resource": "arn:aws:rds:ap-southeast-1:*:db:supportdesk-demo-postgres",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1",
+					"aws:ResourceTag/Application": "supportdesk",
+					"aws:ResourceTag/Environment": "demo",
+					"aws:ResourceTag/ManagedBy": "terraform"
+				},
+				"StringEqualsIfExists": {
+					"rds:DatabaseClass": "db.t4g.micro",
+					"rds:DatabaseEngine": "postgres"
+				},
+				"BoolIfExists": {
+					"rds:ManageMasterUserPassword": "true",
+					"rds:MultiAz": "false",
+					"rds:StorageEncrypted": "true",
+					"rds:Vpc": "true"
+				},
+				"NumericLessThanEqualsIfExists": {
+					"rds:StorageSize": "20"
+				}
+			}
+		},
+		{
+			"Sid": "ModifyOnlyTaggedSupportDeskDatabaseSubnetGroup",
+			"Effect": "Allow",
+			"Action": "rds:ModifyDBSubnetGroup",
+			"Resource": "arn:aws:rds:ap-southeast-1:*:subgrp:supportdesk-demo-database",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1",
+					"aws:ResourceTag/Application": "supportdesk",
+					"aws:ResourceTag/Environment": "demo",
+					"aws:ResourceTag/ManagedBy": "terraform"
+				}
+			}
+		},
+		{
+			"Sid": "DeleteOnlyTaggedSupportDeskDatabaseResources",
+			"Effect": "Allow",
+			"Action": [
+				"rds:DeleteDBInstance",
+				"rds:DeleteDBSubnetGroup"
+			],
+			"Resource": [
+				"arn:aws:rds:ap-southeast-1:*:db:supportdesk-demo-postgres",
+				"arn:aws:rds:ap-southeast-1:*:subgrp:supportdesk-demo-database"
+			],
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1",
+					"aws:ResourceTag/Application": "supportdesk",
+					"aws:ResourceTag/Environment": "demo",
+					"aws:ResourceTag/ManagedBy": "terraform"
+				}
+			}
+		},
+		{
+			"Sid": "ManageTagsOnlyOnSupportDeskDatabaseResources",
+			"Effect": "Allow",
+			"Action": [
+				"rds:AddTagsToResource",
+				"rds:RemoveTagsFromResource"
+			],
+			"Resource": [
+				"arn:aws:rds:ap-southeast-1:*:db:supportdesk-demo-postgres",
+				"arn:aws:rds:ap-southeast-1:*:snapshot:supportdesk-demo-final",
+				"arn:aws:rds:ap-southeast-1:*:subgrp:supportdesk-demo-database"
+			],
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				},
+				"ForAllValues:StringEquals": {
+					"aws:TagKeys": [
+						"Application",
+						"Environment",
+						"ManagedBy",
+						"Name"
+					]
+				}
+			}
+		},
+		{
+			"Sid": "AllowRdsToCreateItsManagedSecret",
+			"Effect": "Allow",
+			"Action": [
+				"secretsmanager:CreateSecret",
+				"secretsmanager:TagResource"
+			],
+			"Resource": "arn:aws:secretsmanager:ap-southeast-1:*:secret:rds!db-*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
+			"Sid": "DescribeSecretsManagerDefaultKmsKey",
+			"Effect": "Allow",
+			"Action": "kms:DescribeKey",
+			"Resource": "arn:aws:kms:ap-southeast-1:*:key/*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		}
+	]
+}
