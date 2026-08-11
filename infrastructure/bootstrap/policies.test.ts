@@ -26,7 +26,7 @@ const actionsFor = (policy: PolicyDocument) =>
 		Array.isArray(statement.Action) ? statement.Action : [statement.Action],
 	);
 
-describe("ECS IAM policy guardrails", () => {
+describe("IAM policy guardrails", () => {
 	it("trusts only the ECS tasks service", () => {
 		const trustPolicy = loadPolicy("supportdesk-ecs-tasks-trust-policy.json");
 
@@ -131,6 +131,24 @@ describe("ECS IAM policy guardrails", () => {
 		expect(actions).not.toContain("cloudwatch:PutMetricData");
 		expect(policy.Statement[0]?.Resource).toBe("*");
 		expect(policy.Statement[0]?.Condition).toEqual({
+			StringEquals: {
+				"aws:RequestedRegion": "ap-southeast-1",
+			},
+		});
+	});
+
+	it("limits final snapshot creation to the SupportDesk database and snapshot", () => {
+		const policy = loadPolicy("supportdesk-database-apply-policy.json");
+		const createFinalSnapshot = policy.Statement.find(
+			(statement) => statement.Sid === "CreateOnlySupportDeskFinalSnapshot",
+		);
+
+		expect(createFinalSnapshot?.Action).toBe("rds:CreateDBSnapshot");
+		expect(createFinalSnapshot?.Resource).toEqual([
+			"arn:aws:rds:ap-southeast-1:*:db:supportdesk-demo-postgres",
+			"arn:aws:rds:ap-southeast-1:*:snapshot:supportdesk-demo-final",
+		]);
+		expect(createFinalSnapshot?.Condition).toEqual({
 			StringEquals: {
 				"aws:RequestedRegion": "ap-southeast-1",
 			},

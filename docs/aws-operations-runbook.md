@@ -186,6 +186,10 @@ repository and portfolio image by destroying only the application Terraform
 root. The final RDS snapshot and seven-day Secrets Manager recovery window can
 continue to incur storage charges after the live environment is removed.
 
+The initial portfolio environment completed this procedure on 11 August 2026.
+See [aws-teardown-record.md](aws-teardown-record.md) for its verified results and
+the least-privilege snapshot-permission correction.
+
 1. Verify Git is clean, CI is passing, and production evidence was captured.
 2. Confirm no migration task is running and note the latest healthy image tag.
 3. Confirm there is no existing snapshot named `supportdesk-demo-final`; rename

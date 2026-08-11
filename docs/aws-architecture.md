@@ -2,14 +2,11 @@
 
 ## Status
 
-This document describes the AWS runtime architecture. The ECR repository,
-application network, private RDS instance, RDS-managed master secret, ECS
-cluster, application and migration task definitions, load balancer, seven-day
-log group, and populated application secret are deployed. One cost-controlled
-ARM64 Fargate application task is running behind a healthy ALB target. The
-one-off migration task completed successfully and stopped after applying both
-committed Prisma migrations with the restricted application database role. Four
-standard CloudWatch alarms are deployed and healthy.
+This document describes the verified AWS runtime architecture. The short-lived
+demo was successfully deployed, tested, monitored, documented, and then torn
+down on 11 August 2026 to stop recurring costs. The final RDS snapshot and three
+immutable ECR images remain for recovery and portfolio evidence. The complete
+outcome is recorded in [aws-teardown-record.md](aws-teardown-record.md).
 
 The first deployment will be short-lived and cost-controlled. Terraform will
 also expose the settings needed to demonstrate how the design scales to a
@@ -116,16 +113,16 @@ earlier immutable ECR tag in
 10. Update the GitHub OAuth callback and production application URL. **Completed.**
 11. Test authentication, ticket operations, and health checks. **Completed.**
 12. Add infrastructure health alarms and operational verification. **Completed.**
-13. Add HTTPS and alarm notifications.
-14. Capture architecture and operational evidence for the portfolio.
-15. Create a final database snapshot and destroy billable demo resources.
+13. Add HTTPS and alarm notifications. **Deferred until a future deployment.**
+14. Capture architecture and operational evidence for the portfolio. **Completed.**
+15. Create a final database snapshot and destroy billable demo resources. **Completed.**
 
 ## Teardown objective
 
-The teardown runbook will remove the ECS service, load balancer, RDS instance,
-Secrets Manager secret, public IPv4 assignments, and application VPC. The ECR
-repository and its single portfolio image can remain because their storage is
-within the new-customer private-repository allowance.
+The teardown removed the ECS service, load balancer, RDS instance, Secrets
+Manager secret, public IPv4 assignment, alarms, log group, and application VPC.
+The available final RDS snapshot and separate ECR repository with three
+immutable images remain. See [aws-teardown-record.md](aws-teardown-record.md).
 
 ## Pricing references
 

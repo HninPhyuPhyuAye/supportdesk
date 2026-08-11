@@ -38,8 +38,9 @@ The database plan policy is read-only and does not include
 `secretsmanager:GetSecretValue`. The database apply policy limits creation to
 the named SupportDesk demo resources and requires PostgreSQL, `db.t4g.micro`,
 20 GiB storage, encryption, private VPC access, Single-AZ, and an RDS-managed
-master password. Terraform tests and plan review enforce the remaining cost
-controls that IAM does not expose as condition keys.
+master password. During an approved teardown, it can create only the named final
+snapshot from the named SupportDesk database. Terraform tests and plan review
+enforce the remaining cost controls that IAM does not expose as condition keys.
 
 Attach the database apply policy only for an approved database apply or
 teardown, then detach it immediately. Keep the database plan policy for drift

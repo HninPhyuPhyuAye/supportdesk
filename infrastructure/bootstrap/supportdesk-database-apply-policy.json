@@ -121,6 +121,20 @@
 			}
 		},
 		{
+			"Sid": "CreateOnlySupportDeskFinalSnapshot",
+			"Effect": "Allow",
+			"Action": "rds:CreateDBSnapshot",
+			"Resource": [
+				"arn:aws:rds:ap-southeast-1:*:db:supportdesk-demo-postgres",
+				"arn:aws:rds:ap-southeast-1:*:snapshot:supportdesk-demo-final"
+			],
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
 			"Sid": "ManageTagsOnlyOnSupportDeskDatabaseResources",
 			"Effect": "Allow",
 			"Action": ["rds:AddTagsToResource", "rds:RemoveTagsFromResource"],

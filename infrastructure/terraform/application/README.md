@@ -1,7 +1,7 @@
 # SupportDesk application infrastructure
 
-This Terraform root module manages the short-lived SupportDesk AWS demo
-environment in `ap-southeast-1`. The deployed checkpoint currently includes:
+This Terraform root module defines the short-lived SupportDesk AWS demo
+environment in `ap-southeast-1`. The verified deployment included:
 
 - one VPC;
 - two public subnets across two Availability Zones;
@@ -21,13 +21,14 @@ The database subnets have no internet route. The application security group
 accepts traffic only from the load balancer and can connect to PostgreSQL only
 through the database security group.
 
-The default remains cost controlled: both `enable_ecs_service` and
-`enable_monitoring_alarms` are `false`. The deployed demo explicitly enables
-them and therefore runs one task and four standard alarms. The Fargate task,
-public IPv4 address, ALB, RDS instance, Secrets Manager secrets, and CloudWatch
-usage can incur charges.
+The application root was destroyed after verification and its Terraform state
+now contains no managed resources. The final RDS snapshot and separate ECR root
+remain. A future deployment is still cost controlled by default: both
+`enable_ecs_service` and `enable_monitoring_alarms` are `false` unless explicitly
+enabled. Fargate, public IPv4, ALB, RDS, Secrets Manager, and CloudWatch usage
+can incur charges while deployed.
 
-The deployed separate one-off ARM64 migration task definition:
+The verified separate one-off ARM64 migration task definition:
 
 - runs as a non-root user with a read-only root filesystem;
 - receives both credentials from Secrets Manager at runtime;

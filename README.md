@@ -236,7 +236,7 @@ npm run db:studio
 
 Prisma migrations are committed to version control so database changes are repeatable and reviewable.
 
-## AWS deployment progress
+## AWS deployment outcome
 
 Completed:
 
@@ -257,12 +257,22 @@ Completed:
   ECS CPU and memory utilization, and RDS free storage
 - Verified all four alarms are healthy, Terraform reports no drift, and temporary
   monitoring write policies are detached
+- Captured sanitized application, ECS, monitoring, and CI evidence
+- Created an available final RDS snapshot and destroyed the live application
+  environment to stop recurring demo costs
+- Verified zero remaining live databases, alarms, VPCs, load balancers, active
+  ECS clusters, or application Terraform resources
+- Detached all temporary teardown permissions
 
-The deployed RDS instance, ALB, Fargate task, public task IPv4 address, and two
-Secrets Manager secrets currently incur charges. Remaining AWS work:
+The live demo is no longer running. The final RDS snapshot and three immutable
+ECR images remain and may incur storage charges. Full teardown results and the
+least-privilege IAM correction are documented in
+[docs/aws-teardown-record.md](docs/aws-teardown-record.md).
+
+Possible future upgrades before another short-lived deployment:
 
 - Add a custom domain, ACM certificate, and HTTPS listener; the temporary demo endpoint is HTTP-only
-- Add alarm notifications, deployment documentation, and a recovery runbook
+- Add alarm notifications through a reviewed SNS destination
 - Add GitHub Actions OIDC deployment after reviewing a dedicated least-privilege CI role
 
 This roadmap is intended to demonstrate cloud provisioning, infrastructure as code, security controls, monitoring, data protection, and operational documentation.

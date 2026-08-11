@@ -1,8 +1,9 @@
 # SupportDesk deployment evidence
 
-These screenshots document the verified portfolio deployment. They are cropped
-to exclude AWS account identifiers, ARNs, endpoints, browser history, and secret
-values.
+These screenshots document the verified portfolio deployment before its
+cost-controlled teardown. They are cropped to exclude AWS account identifiers,
+ARNs, endpoints, browser history, and secret values. The teardown outcome is
+recorded in [../aws-teardown-record.md](../aws-teardown-record.md).
 
 ## Application workflow
 
