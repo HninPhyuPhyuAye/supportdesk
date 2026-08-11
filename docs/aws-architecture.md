@@ -8,7 +8,8 @@ cluster, application and migration task definitions, load balancer, seven-day
 log group, and populated application secret are deployed. One cost-controlled
 ARM64 Fargate application task is running behind a healthy ALB target. The
 one-off migration task completed successfully and stopped after applying both
-committed Prisma migrations with the restricted application database role.
+committed Prisma migrations with the restricted application database role. Four
+standard CloudWatch alarms are deployed and healthy.
 
 The first deployment will be short-lived and cost-controlled. Terraform will
 also expose the settings needed to demonstrate how the design scales to a
@@ -59,6 +60,7 @@ endpoints for ECR, CloudWatch Logs, and Secrets Manager.
 | Load balancer | One internet-facing ALB used only during the demonstration | HTTPS listener, ACM certificate, custom domain and AWS WAF where required |
 | Logs | Seven-day CloudWatch retention | Retention based on compliance and operational requirements |
 | Images | ECR lifecycle keeps the latest three images | Retention based on release and rollback policy |
+| Monitoring | Four standard alarms with no notification actions | Route alerts to an owned SNS destination and incident workflow |
 
 The VPC, subnets, route tables, security groups, and internet gateway do not
 have an hourly charge by themselves. Fargate tasks, public IPv4 addresses, the
@@ -94,9 +96,9 @@ The production profile increases the application desired count to at least two
 and enables RDS Multi-AZ without redesigning the network.
 
 RDS automated backups, deletion protection, and a final snapshot are configured.
-Application and load-balancer health checks are included in the local runtime
-configuration. CloudWatch alarms remain to be added before the live
-demonstration. A recovery runbook will document database restoration and
+Application and load-balancer health checks are active. CloudWatch monitors ALB
+unhealthy targets, ECS CPU and memory utilization, and RDS free storage. A
+recovery runbook will document database restoration and
 application rollback to an earlier immutable ECR tag.
 
 ## Deployment sequence
@@ -112,9 +114,10 @@ application rollback to an earlier immutable ECR tag.
 9. Enable the ECS service. **Completed.**
 10. Update the GitHub OAuth callback and production application URL. **Completed.**
 11. Test authentication, ticket operations, and health checks. **Completed.**
-12. Add HTTPS, logs-based alarms, and operational verification.
-13. Capture architecture and operational evidence for the portfolio.
-14. Create a final database snapshot and destroy billable demo resources.
+12. Add infrastructure health alarms and operational verification. **Completed.**
+13. Add HTTPS and alarm notifications.
+14. Capture architecture and operational evidence for the portfolio.
+15. Create a final database snapshot and destroy billable demo resources.
 
 ## Teardown objective
 

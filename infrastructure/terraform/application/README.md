@@ -11,22 +11,23 @@ environment in `ap-southeast-1`. The deployed checkpoint currently includes:
 - separate load balancer, application, and database security groups; and
 - a private, encrypted, Single-AZ RDS for PostgreSQL instance with an
   RDS-managed master credential;
-- one ECS cluster and a non-running ARM64 application task definition;
+- one ECS cluster and one running ARM64 Fargate application task;
 - an internet-facing Application Load Balancer and `/api/health` target group;
-- a seven-day CloudWatch Logs group; and
-- an empty application-secret container in Secrets Manager.
+- a seven-day CloudWatch Logs group;
+- four standard CloudWatch alarms for ALB, ECS, and RDS health; and
+- an application-secret container populated outside Terraform.
 
 The database subnets have no internet route. The application security group
 accepts traffic only from the load balancer and can connect to PostgreSQL only
 through the database security group.
 
-The ECS service remains deliberately disabled with
-`enable_ecs_service = false`, so no Fargate application task is running. The
-deployed ALB, application secret, RDS instance, and RDS-managed secret incur
-charges even while the service is off.
+The default remains cost controlled: both `enable_ecs_service` and
+`enable_monitoring_alarms` are `false`. The deployed demo explicitly enables
+them and therefore runs one task and four standard alarms. The Fargate task,
+public IPv4 address, ALB, RDS instance, Secrets Manager secrets, and CloudWatch
+usage can incur charges.
 
-The next checkpoint is implemented and tested locally but has **not** been
-applied. It adds a separate one-off ARM64 migration task definition that:
+The deployed separate one-off ARM64 migration task definition:
 
 - runs as a non-root user with a read-only root filesystem;
 - receives both credentials from Secrets Manager at runtime;
@@ -34,6 +35,21 @@ applied. It adds a separate one-off ARM64 migration task definition that:
 - transfers ownership only for objects in the application schema;
 - applies committed Prisma migrations as `supportdesk_app`; and
 - exits instead of creating a continuously running service.
+
+## Monitoring
+
+Set `enable_monitoring_alarms = true` together with
+`enable_ecs_service = true` to create:
+
+- an alarm when at least one ALB target is unhealthy for two minutes;
+- ECS CPU and memory alarms when utilization exceeds 80% for five minutes; and
+- an RDS storage alarm when free space remains below 2 GiB for 15 minutes.
+
+Missing data does not trigger these alarms, and no notification actions are
+configured yet. Alarm creation uses the temporary
+`SupportDeskMonitoringCreateAccess` policy. Detach that policy and the runtime
+apply policy immediately after an approved apply; retain only the read-only
+runtime plan policy for drift detection.
 
 ## Local validation
 

@@ -116,6 +116,16 @@ run "disabled_cost_controlled_runtime" {
     condition     = length(aws_ecs_service.supportdesk) == 0
     error_message = "The billable Fargate service must remain disabled by default."
   }
+
+  assert {
+    condition = sum([
+      length(aws_cloudwatch_metric_alarm.alb_unhealthy_targets),
+      length(aws_cloudwatch_metric_alarm.ecs_high_cpu),
+      length(aws_cloudwatch_metric_alarm.ecs_high_memory),
+      length(aws_cloudwatch_metric_alarm.rds_low_free_storage),
+    ]) == 0
+    error_message = "CloudWatch alarms must remain disabled by default."
+  }
 }
 
 run "explicitly_enabled_service_networking" {
@@ -143,6 +153,45 @@ run "explicitly_enabled_service_networking" {
   assert {
     condition     = length(aws_ecs_service.supportdesk[0].network_configuration[0].subnets) == 2
     error_message = "The service must be able to place its single task in either public subnet."
+  }
+}
+
+run "cost_controlled_standard_monitoring" {
+  command = apply
+
+  variables {
+    enable_ecs_service       = true
+    enable_monitoring_alarms = true
+  }
+
+  assert {
+    condition = sum([
+      length(aws_cloudwatch_metric_alarm.alb_unhealthy_targets),
+      length(aws_cloudwatch_metric_alarm.ecs_high_cpu),
+      length(aws_cloudwatch_metric_alarm.ecs_high_memory),
+      length(aws_cloudwatch_metric_alarm.rds_low_free_storage),
+    ]) == 4
+    error_message = "Explicit monitoring enablement must create exactly four standard alarms."
+  }
+
+  assert {
+    condition     = aws_cloudwatch_metric_alarm.ecs_high_cpu[0].threshold == 80 && aws_cloudwatch_metric_alarm.ecs_high_memory[0].threshold == 80
+    error_message = "ECS utilization alarms must retain the reviewed 80 percent thresholds."
+  }
+
+  assert {
+    condition     = aws_cloudwatch_metric_alarm.rds_low_free_storage[0].threshold == 2 * 1024 * 1024 * 1024
+    error_message = "The database alarm must trigger below 2 GiB of free storage."
+  }
+
+  assert {
+    condition = alltrue([
+      try(length(aws_cloudwatch_metric_alarm.alb_unhealthy_targets[0].alarm_actions), 0) == 0,
+      try(length(aws_cloudwatch_metric_alarm.ecs_high_cpu[0].alarm_actions), 0) == 0,
+      try(length(aws_cloudwatch_metric_alarm.ecs_high_memory[0].alarm_actions), 0) == 0,
+      try(length(aws_cloudwatch_metric_alarm.rds_low_free_storage[0].alarm_actions), 0) == 0,
+    ])
+    error_message = "The demo alarms must not add unreviewed notification or remediation actions."
   }
 }
 

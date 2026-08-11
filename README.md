@@ -241,12 +241,16 @@ Completed:
 - Started one cost-controlled ARM64 Fargate task behind the ALB and verified a healthy target and HTTP 200 response
 - Tested production GitHub login and persistent ticket creation, status changes, and filters against private RDS
 - Removed the temporary Terraform apply policy after the service deployment
+- Added four Terraform-managed standard CloudWatch alarms for ALB target health,
+  ECS CPU and memory utilization, and RDS free storage
+- Verified all four alarms are healthy, Terraform reports no drift, and temporary
+  monitoring write policies are detached
 
 The deployed RDS instance, ALB, Fargate task, public task IPv4 address, and two
 Secrets Manager secrets currently incur charges. Remaining AWS work:
 
 - Add a custom domain, ACM certificate, and HTTPS listener; the temporary demo endpoint is HTTP-only
-- Add alarms, deployment documentation, and a recovery runbook
+- Add alarm notifications, deployment documentation, and a recovery runbook
 - Add GitHub Actions OIDC deployment after reviewing a dedicated least-privilege CI role
 
 This roadmap is intended to demonstrate cloud provisioning, infrastructure as code, security controls, monitoring, data protection, and operational documentation.

@@ -82,11 +82,15 @@ describe("ECS IAM policy guardrails", () => {
 		const manageService = applyPolicy.Statement.find(
 			(statement) => statement.Sid === "ManageNamedSupportDeskEcsService",
 		);
+		const manageAlarms = applyPolicy.Statement.find(
+			(statement) => statement.Sid === "ManageOnlyExistingSupportDeskAlarms",
+		);
 
 		expect(actions).not.toContain("iam:CreateRole");
 		expect(actions).not.toContain("iam:CreateServiceLinkedRole");
 		expect(actions).not.toContain("secretsmanager:GetSecretValue");
 		expect(actions).not.toContain("secretsmanager:PutSecretValue");
+		expect(actions).not.toContain("cloudwatch:PutMetricData");
 		expect(passRoleStatement?.Resource).toEqual([
 			"arn:aws:iam::*:role/supportdesk-ecs-execution",
 			"arn:aws:iam::*:role/supportdesk-ecs-task",
@@ -106,6 +110,27 @@ describe("ECS IAM policy guardrails", () => {
 			ArnLikeIfExists: {
 				"ecs:cluster": "arn:aws:ecs:ap-southeast-1:*:cluster/supportdesk-demo",
 			},
+			StringEquals: {
+				"aws:RequestedRegion": "ap-southeast-1",
+			},
+		});
+		expect(manageAlarms?.Resource).toBe(
+			"arn:aws:cloudwatch:ap-southeast-1:*:alarm:supportdesk-demo-*",
+		);
+	});
+
+	it("limits temporary monitoring bootstrap access to alarm creation", () => {
+		const policy = loadPolicy("supportdesk-monitoring-create-policy.json");
+		const actions = actionsFor(policy);
+
+		expect(actions).toEqual([
+			"cloudwatch:PutMetricAlarm",
+			"cloudwatch:TagResource",
+		]);
+		expect(actions).not.toContain("cloudwatch:DeleteAlarms");
+		expect(actions).not.toContain("cloudwatch:PutMetricData");
+		expect(policy.Statement[0]?.Resource).toBe("*");
+		expect(policy.Statement[0]?.Condition).toEqual({
 			StringEquals: {
 				"aws:RequestedRegion": "ap-southeast-1",
 			},

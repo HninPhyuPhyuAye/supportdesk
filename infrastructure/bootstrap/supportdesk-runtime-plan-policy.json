@@ -53,6 +53,17 @@
 			}
 		},
 		{
+			"Sid": "ReadSupportDeskAlarmMetadataForTerraformPlan",
+			"Effect": "Allow",
+			"Action": ["cloudwatch:DescribeAlarms", "cloudwatch:ListTagsForResource"],
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		},
+		{
 			"Sid": "ReadSupportDeskLogMetadataForTerraformPlan",
 			"Effect": "Allow",
 			"Action": ["logs:DescribeLogGroups", "logs:ListTagsForResource"],

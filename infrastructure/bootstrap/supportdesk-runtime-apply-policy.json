@@ -126,6 +126,24 @@
 			}
 		},
 		{
+			"Sid": "ManageOnlyExistingSupportDeskAlarms",
+			"Effect": "Allow",
+			"Action": [
+				"cloudwatch:DeleteAlarms",
+				"cloudwatch:PutMetricAlarm",
+				"cloudwatch:TagResource",
+				"cloudwatch:UntagResource"
+			],
+			"Resource": "arn:aws:cloudwatch:ap-southeast-1:*:alarm:supportdesk-demo-*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1",
+					"aws:ResourceTag/Environment": "demo",
+					"aws:ResourceTag/Project": "SupportDesk"
+				}
+			}
+		},
+		{
 			"Sid": "ManageOnlySupportDeskApplicationLogGroup",
 			"Effect": "Allow",
 			"Action": [

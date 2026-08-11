@@ -15,6 +15,7 @@ administrator session and then attached to the deployment user.
 | `supportdesk-ecs-execution-policy.json` | Let the ECS agent pull only the SupportDesk image, write its log streams, and read its application secret. |
 | `supportdesk-runtime-plan-policy.json` | Read ECS, load-balancer, log-group, and application-secret metadata without reading secret values. |
 | `supportdesk-runtime-apply-policy.json` | Temporarily manage only the named SupportDesk ECS, ALB, log-group, and application-secret metadata resources. |
+| `supportdesk-monitoring-create-policy.json` | Temporarily create and tag the four reviewed CloudWatch alarms in Singapore. |
 | `supportdesk-migration-secret-policy.json` | Temporarily let the ECS execution role inject the RDS-managed master credential into the migration task. |
 | `supportdesk-migration-run-policy.json` | Temporarily run, observe, or stop only the small SupportDesk migration task. |
 
@@ -60,6 +61,13 @@ The runtime apply policy can pass only those two roles and only to
 an administrator populates the application secret outside Terraform so the
 plaintext value never enters Terraform state. The apply policy must be detached
 immediately after an approved runtime apply or teardown.
+
+CloudWatch does not reliably authorize a not-yet-created alarm through existing
+resource tags. Alarm creation therefore uses the separate, short-lived
+monitoring create policy with only `PutMetricAlarm` and `TagResource` actions.
+Attach it only for a reviewed monitoring apply and detach it immediately after
+the alarms exist. The runtime apply policy manages only existing, tagged
+SupportDesk alarms, while the runtime plan policy remains read-only.
 
 AWS does not support resource-level authorization for
 `ecs:DescribeTaskDefinition` or `ecs:DeregisterTaskDefinition`. Those two

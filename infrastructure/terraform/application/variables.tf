@@ -270,6 +270,12 @@ variable "enable_ecs_service" {
   default     = false
 }
 
+variable "enable_monitoring_alarms" {
+  description = "Creates four standard CloudWatch alarms only while the ECS demo service is enabled."
+  type        = bool
+  default     = false
+}
+
 variable "enable_migration_task_definition" {
   description = "Registers the one-off database bootstrap task only after its immutable image has been pushed."
   type        = bool

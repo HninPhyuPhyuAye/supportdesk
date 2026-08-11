@@ -1,0 +1,16 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "TemporarilyCreateTaggedCloudWatchAlarms",
+			"Effect": "Allow",
+			"Action": ["cloudwatch:PutMetricAlarm", "cloudwatch:TagResource"],
+			"Resource": "*",
+			"Condition": {
+				"StringEquals": {
+					"aws:RequestedRegion": "ap-southeast-1"
+				}
+			}
+		}
+	]
+}
