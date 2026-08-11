@@ -98,8 +98,9 @@ and enables RDS Multi-AZ without redesigning the network.
 RDS automated backups, deletion protection, and a final snapshot are configured.
 Application and load-balancer health checks are active. CloudWatch monitors ALB
 unhealthy targets, ECS CPU and memory utilization, and RDS free storage. A
-recovery runbook will document database restoration and
-application rollback to an earlier immutable ECR tag.
+recovery runbook documents database restoration and application rollback to an
+earlier immutable ECR tag in
+[aws-operations-runbook.md](aws-operations-runbook.md).
 
 ## Deployment sequence
 

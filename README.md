@@ -202,6 +202,10 @@ configuration, cost controls, security boundaries, availability upgrade path,
 and teardown objective, are documented in
 [docs/aws-architecture.md](docs/aws-architecture.md).
 
+Operational health checks, alarm response, application rollback, database
+recovery, and reviewed teardown procedures are documented in
+[docs/aws-operations-runbook.md](docs/aws-operations-runbook.md).
+
 Run the read-only validation workflow from the ECR module directory:
 
 ```bash
