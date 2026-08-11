@@ -2,7 +2,15 @@
 
 [![CI](https://github.com/HninPhyuPhyuAye/supportdesk/actions/workflows/ci.yml/badge.svg)](https://github.com/HninPhyuPhyuAye/supportdesk/actions/workflows/ci.yml)
 
-SupportDesk is a full-stack IT support ticket application for reporting, prioritizing, and tracking technical issues. It is a portfolio project focused on type-safe web development, authentication, access control, relational data, and a future AWS deployment.
+SupportDesk is a full-stack IT support ticket application for reporting,
+prioritizing, and tracking technical issues. It is a portfolio project focused
+on type-safe web development, authentication, access control, relational data,
+automated testing, infrastructure as code, and a verified AWS deployment.
+
+![SupportDesk ticket workflow](docs/evidence/supportdesk-ticket-workflow.png)
+
+See the complete [deployment evidence gallery](docs/evidence/README.md) for the
+authenticated interface, ECS service, CloudWatch alarms, and CI results.
 
 ## Current features
 
