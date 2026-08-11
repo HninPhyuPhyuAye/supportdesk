@@ -62,7 +62,7 @@
 				"StringEquals": {
 					"aws:RequestedRegion": "ap-southeast-1"
 				},
-				"ArnLike": {
+				"ArnLikeIfExists": {
 					"ecs:cluster": "arn:aws:ecs:ap-southeast-1:*:cluster/supportdesk-demo"
 				}
 			}

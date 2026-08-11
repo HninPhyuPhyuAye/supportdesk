@@ -79,6 +79,9 @@ describe("ECS IAM policy guardrails", () => {
 		const deregisterTaskDefinition = applyPolicy.Statement.find(
 			(statement) => statement.Action === "ecs:DeregisterTaskDefinition",
 		);
+		const manageService = applyPolicy.Statement.find(
+			(statement) => statement.Sid === "ManageNamedSupportDeskEcsService",
+		);
 
 		expect(actions).not.toContain("iam:CreateRole");
 		expect(actions).not.toContain("iam:CreateServiceLinkedRole");
@@ -95,6 +98,14 @@ describe("ECS IAM policy guardrails", () => {
 		});
 		expect(deregisterTaskDefinition?.Resource).toBe("*");
 		expect(deregisterTaskDefinition?.Condition).toEqual({
+			StringEquals: {
+				"aws:RequestedRegion": "ap-southeast-1",
+			},
+		});
+		expect(manageService?.Condition).toEqual({
+			ArnLikeIfExists: {
+				"ecs:cluster": "arn:aws:ecs:ap-southeast-1:*:cluster/supportdesk-demo",
+			},
 			StringEquals: {
 				"aws:RequestedRegion": "ap-southeast-1",
 			},

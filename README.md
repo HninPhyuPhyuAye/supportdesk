@@ -233,18 +233,21 @@ Completed:
 - Provisioned the VPC, subnets, routes, and security groups with Terraform
 - Provisioned a private, encrypted RDS PostgreSQL database with an RDS-managed secret
 - Provisioned the ECS cluster, ARM64 application task definition, ALB, CloudWatch Logs, and application secret
-- Kept the billable Fargate service disabled until production authentication is configured
+- Configured a separate production GitHub OAuth application and stored its credentials outside Terraform
 - Built, scanned, and registered an immutable non-root ARM64 migration image and one-off task definition
 - Populated the database-only application secret outside Terraform
 - Ran the one-off task successfully to create the least-privilege PostgreSQL login and apply both committed migrations
 - Removed the temporary migration runner and RDS master-secret permissions after the task stopped
+- Started one cost-controlled ARM64 Fargate task behind the ALB and verified a healthy target and HTTP 200 response
+- Tested production GitHub login and persistent ticket creation, status changes, and filters against private RDS
+- Removed the temporary Terraform apply policy after the service deployment
 
-The deployed RDS instance, ALB, and two Secrets Manager secrets currently incur
-charges. No Fargate task is running yet. Remaining AWS work:
+The deployed RDS instance, ALB, Fargate task, public task IPv4 address, and two
+Secrets Manager secrets currently incur charges. Remaining AWS work:
 
-- Configure the production GitHub OAuth callback and add the authentication values to the application secret
-- Run the application on Amazon ECS with AWS Fargate
+- Add a custom domain, ACM certificate, and HTTPS listener; the temporary demo endpoint is HTTP-only
 - Add alarms, deployment documentation, and a recovery runbook
+- Add GitHub Actions OIDC deployment after reviewing a dedicated least-privilege CI role
 
 This roadmap is intended to demonstrate cloud provisioning, infrastructure as code, security controls, monitoring, data protection, and operational documentation.
 

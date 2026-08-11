@@ -4,10 +4,11 @@
 
 This document describes the AWS runtime architecture. The ECR repository,
 application network, private RDS instance, RDS-managed master secret, ECS
-cluster, application task definition, load balancer, seven-day log group, and
-empty application-secret container are deployed. The Fargate service remains
-disabled, so no application task is running. The separate one-off migration
-task is implemented and tested locally but has not been registered or run.
+cluster, application and migration task definitions, load balancer, seven-day
+log group, and populated application secret are deployed. One cost-controlled
+ARM64 Fargate application task is running behind a healthy ALB target. The
+one-off migration task completed successfully and stopped after applying both
+committed Prisma migrations with the restricted application database role.
 
 The first deployment will be short-lived and cost-controlled. Terraform will
 also expose the settings needed to demonstrate how the design scales to a
@@ -26,8 +27,7 @@ flowchart TB
     ecs --> logs["Amazon CloudWatch Logs\n7-day demo retention"]
     alb --> alarms["CloudWatch health alarms"]
 
-    github["GitHub Actions\nOIDC federation"] --> ecr
-    github --> ecs
+    github["GitHub Actions CI\nquality checks and container build"]
 ```
 
 ## Network design
@@ -81,7 +81,8 @@ while deployed.
   run the application with a separate least-privilege database user.
 - Give the ECS task, ECS execution role, and GitHub deployment role separate
   least-privilege IAM policies.
-- Use GitHub Actions OIDC federation instead of long-lived AWS access keys.
+- Add a future GitHub Actions deployment role through OIDC federation instead
+  of storing long-lived AWS access keys.
 - Restrict security-group paths to ALB-to-task and task-to-database traffic.
 - Send application logs to CloudWatch without logging secret values.
 
@@ -105,14 +106,15 @@ application rollback to an earlier immutable ECR tag.
 3. Provision RDS and its managed Secrets Manager credential. **Completed.**
 4. Create the ECS execution and task roles and review the runtime plan and cost. **Completed.**
 5. Provision the disabled runtime foundation and task definition. **Completed.**
-6. Push and register the one-off migration image.
-7. Populate the application secret outside Terraform.
-8. Create the restricted database login and apply Prisma migrations through the one-off task.
-9. Enable the ECS service.
-10. Update the GitHub OAuth callback and production application URL.
-11. Test authentication, ticket operations, health checks, logs, and alarms.
-12. Capture architecture and operational evidence for the portfolio.
-13. Create a final database snapshot and destroy billable demo resources.
+6. Push and register the one-off migration image. **Completed.**
+7. Populate the application secret outside Terraform. **Completed.**
+8. Create the restricted database login and apply Prisma migrations through the one-off task. **Completed.**
+9. Enable the ECS service. **Completed.**
+10. Update the GitHub OAuth callback and production application URL. **Completed.**
+11. Test authentication, ticket operations, and health checks. **Completed.**
+12. Add HTTPS, logs-based alarms, and operational verification.
+13. Capture architecture and operational evidence for the portfolio.
+14. Create a final database snapshot and destroy billable demo resources.
 
 ## Teardown objective
 
